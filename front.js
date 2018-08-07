@@ -1,0 +1,3 @@
+app.render('email', function(err, html){
+  // ...
+});
