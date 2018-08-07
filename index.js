@@ -4,9 +4,12 @@
 
 var bodyParser = require('body-parser');
 var express = require('express');
-var OAuth2Server = require('express-oauth-server');
+var oAuth2Server = require('oauth2-server');
 var render = require('co-views')('views');
 var util = require('util');
+var authenticate = require('./authenticate')
+var Request = oAuth2Server.Request;
+var Response = oAuth2Server.Response;
 
 // Create an Express application.
 var app = express();
@@ -20,84 +23,62 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Add OAuth server.
-app.oauth =  new OAuth2Server({
+app.oauth =  new oAuth2Server({
   model: require('./oauthapi.js'),
-  grants: ['password'],
-  debug: true,
-  useErrorHandler: true, 
-  continueMiddleware: true,
 });
 //app.use(app.oauth.errorHandler());
 
 // Post token.
-app.post('/oauth/token', app.oauth.token());
-
-// Get authorization.
-app.get('/oauth/authorize', function(req, res) {
-  console.log("get authorize");
-  // Redirect anonymous users to login page.
-  if (!req.app.locals.user) {
-    return res.redirect(util.format('/login?redirect=%s&client_id=%s&redirect_uri=%s', req.path, req.query.client_id, req.query.redirect_uri));
-  }
-  console.log("OK authorize");
-    app.oauth.authorize()
-  return render('authorize', {
-    client_id: req.query.client_id,
-    redirect_uri: req.query.redirect_uri
+app.post('/oauth/token', function(req,res,next){
+    var request = new Request(req);
+    var response = new Response(res);
+    console.log('/oauth/token');
+    app.oauth
+      .token(request,response)
+      .then(function(token) {
+        // Todo: remove unnecessary values in response
+        console.log('sending token');
+        return res.json(token)
+      }).catch(function(err){
+        return res.status( 500).json(err)
+      })
   });
+
+app.post('/toto', function(req, res){
+  console.log('/toto');
 });
 
-// Post authorization.
-app.post('/oauth/authorize', function(req, res) {
-  console.log("authorize");
-  // Redirect anonymous users to login page.
-  if (!req.app.locals.user) {
-    return res.redirect(util.format('/login?client_id=%s&redirect_uri=%s', req.query.client_id, req.query.redirect_uri));
-  }
-  console.log("authorize ok " + req.app.locals.user);
-  app.oauth.authorise();
-  //return app.oauth.authorise();
-});
+app.post('/authorise', function(req, res){
+  console.log('/authorise');
+    var request = new Request(req);
+    var response = new Response(res);
 
-// Get login.
-app.get('/login', function(req,res) {
-  console.log("login!");
-  return render('login', {
-    redirect: req.query.redirect,
-    client_id: req.query.client_id,
-    redirect_uri: req.query.redirect_uri
+    return app.oauth.authorize(request, response).then(function(success) {
+        res.json(success)
+    }).catch(function(err){
+      res.status(err.code || 500).json(err)
+    })
   });
+
+app.get('/secure', authenticate(app.oauth), function(req,res){
+  res.json({message: 'Secure data'})
 });
 
-// Post login.
-app.post('/login', function(req, res) {
-   console.log("post login");
-  // @TODO: Insert your own login mechanism.
-  if (req.body.email === 'thom@nightworld.com') {
-    return render('login', {
-      redirect: req.body.redirect,
-      client_id: req.body.client_id,
-      redirect_uri: req.body.redirect_uri
-    });
-  }
-  req.app.locals.user = "test";
-  // Successful logins should send the user back to /oauth/authorize.
-  var path = req.body.redirect || '/login';
-  console.log("redirect " + path);
-  //return app.oauth.authorize();
-  return res.redirect(util.format('/%s?client_id=%s&redirect_uri=%s', path, req.query.client_id, req.query.redirect_uri));
+app.get('/me', authenticate(app.oauth), function(req,res){
+  res.json({
+    me: req.user,
+    messsage: 'Authorization success, Without Scopes, Try accessing /profile with `profile` scope',
+    description: 'Try postman https://www.getpostman.com/collections/37afd82600127fbeef28',
+    more: 'pass `profile` scope while Authorize'
+  })
 });
 
-// Get secret.
-app.get('/secret', app.oauth.authenticate(), function(req, res) {
-  // Will require a valid access_token.
-  res.send('Secret area');
+app.get('/profile', authenticate(app.oauth,{scope:'profile'}), function(req,res){
+  res.json({
+    profile: req.user
+  })
 });
 
-app.get('/public', function(req, res) {
-  // Does not require an access_token.
-  res.send('Public area');
-});
 
 app.get('/', function (req, res) {
   res.send('Hello World!')
