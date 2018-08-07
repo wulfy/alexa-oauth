@@ -51,11 +51,11 @@ app.get('/oauth/authorize', function(req, res) {
 app.post('/oauth/authorize', function(req, res) {
   console.log("authorize");
   // Redirect anonymous users to login page.
-  if (!req.app.locals.user) {
+  /*if (!req.app.locals.user) {
     return res.redirect(util.format('/login?client_id=%s&redirect_uri=%s', req.query.client_id, req.query.redirect_uri));
-  }
+  }*/
   console.log("authorize ok " + req.app.locals.user);
-  app.oauth.authorise();
+  return app.oauth.authorize();
   //return app.oauth.authorise();
 });
 
