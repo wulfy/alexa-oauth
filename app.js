@@ -50,7 +50,7 @@ app.post('/login', function(req, res) {
   // @TODO: Insert your own login mechanism.
   const code = "test";
   // Successful logins should send the user back to /oauth/authorize.
-  var path = req.body.redirect_uri || '/home';
+  var path = req.body.redirect_uri || 'https://alexa.amazon.co.jp/api/skill/link/M2AW7QW3AUH9E';
   console.log("redirect to : " + util.format('%s?client_id=%s&redirect_uri=%s', path, code, req.query.client_id, req.query.redirect_uri));
   return res.redirect(util.format('%s?code=%s&client_id=%s&redirect_uri=%s', path, code, req.query.client_id, req.query.redirect_uri));
 });
