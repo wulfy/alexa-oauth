@@ -8,6 +8,7 @@ var oAuth2Server = require('oauth2-server');
 var render = require('co-views')('views');
 var util = require('util');
 var authenticate = require('./authenticate')
+var path = require('path');
 var Request = oAuth2Server.Request;
 var Response = oAuth2Server.Response;
 
@@ -52,6 +53,10 @@ app.post('/login', function(req, res) {
   var path = req.body.redirect_uri || '/home';
   console.log("redirect to : " + util.format('%s?client_id=%s&redirect_uri=%s', path, code, req.query.client_id, req.query.redirect_uri));
   return res.redirect(util.format('%s?code=%s&client_id=%s&redirect_uri=%s', path, code, req.query.client_id, req.query.redirect_uri));
+});
+
+app.get('/login', function(req, res) {
+  return res.sendFile(path.join(__dirname + '/login.html'));
 });
 
 
