@@ -54,8 +54,8 @@ app.post('/login', function(req, res) {
   var state = req.app.locals.query.state || 'no_state';
   console.log("post login");
   console.log(req.app.locals.query.redirect_uri);
-  console.log("redirect to : " + util.format('%s&state=%s&code=%s', path, state, code));
-  return res.redirect(util.format('%s&state=%s&code=%s', path, state, code));
+  console.log("redirect to : " + util.format('%s?state=%s&code=%s', path, state, code));
+  return res.redirect(util.format('%s?state=%s&code=%s', path, state, code));
 });
 
 app.get('/login', function(req, res) {
