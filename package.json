@@ -6,6 +6,7 @@
   "author": "Wulfy",
   "license": "MIT",
   "dependencies": {
+    "aws-serverless-express": "^3.2.0",
     "body-parser": "^1.18.3",
     "co-views": "^2.1.0",
     "ejs": "^2.6.1",
@@ -13,5 +14,8 @@
     "express-oauth-server": "^2.0.0",
     "mysql": "^2.16.0",
     "oauth2-server": "^3.0.0"
+  },
+  "devDependencies": {
+    "claudia": "^5.1.0"
   }
 }
