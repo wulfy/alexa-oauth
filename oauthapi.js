@@ -74,33 +74,6 @@ module.exports.getClient = function (clientId, clientSecret) {
         };
       }
     );
-  /*
-  return connection.query('SELECT client_id, client_secret, redirect_uri FROM oauth_clients WHERE client_id = ? AND client_secret = ?', 
-    [clientId, clientSecret],
-    function (error, results, fields) {
-      if (error) throw error;
-      console.log(results);
-      
-      var oAuthClient = results[0];
-
-      if (!oAuthClient) {
-        console.log("NO OAUTH");
-        return;
-      }
-
-      const returnData = {
-        "clientId": oAuthClient.client_id,
-        "clientSecret": oAuthClient.client_secret,
-        "grants": [
-                  "password",
-                  "authorization_code",
-                  "refresh_token"
-              ] // the list of OAuth2 grant types that should be allowed
-      };
-
-      console.log(returnData)
-      return returnData;
-    });*/
 };
 
 
