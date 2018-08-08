@@ -1,23 +1,21 @@
 /**
  * Module dependencies.
  */
+require('dotenv').config()
 
 var mysql = require('mysql')
 var database = require('./database')
-
-var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root',
+const dbConfig = {
+  host     : process.env.MYSQL_ADDON_HOST,
+  user     : process.env.MYSQL_ADDON_USER,
+  password : process.env.MYSQL_ADDON_PASSWORD,
+  port     : process.env.MYSQL_ADDON_PORT,
   database : 'test_oauth'
-});
+};
 
-var connectionDatabase = new database({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root',
-  database : 'test_oauth'
-});
+var connection = mysql.createConnection(dbConfig);
+
+var connectionDatabase = new database(dbConfig);
 
 connection.connect(function(err) {
   if (err) {

@@ -44,9 +44,16 @@ app.post('/oauth/token', function(req,res,next){
       })
   });
 
-app.post('/toto', function(req, res){
-  console.log('/toto');
+// Post login.
+app.post('/login', function(req, res) {
+  // @TODO: Insert your own login mechanism.
+  const code = "test";
+  // Successful logins should send the user back to /oauth/authorize.
+  var path = req.body.redirect_uri || '/home';
+  console.log("redirect to : " + util.format('%s?client_id=%s&redirect_uri=%s', path, code, req.query.client_id, req.query.redirect_uri));
+  return res.redirect(util.format('%s?code=%s&client_id=%s&redirect_uri=%s', path, code, req.query.client_id, req.query.redirect_uri));
 });
+
 
 app.post('/authorise', function(req, res){
   console.log('/authorise');
