@@ -50,15 +50,17 @@ app.post('/login', function(req, res) {
   // @TODO: Insert your own login mechanism.
   const code = "admin";
   // Successful logins should send the user back to /oauth/authorize.
-  var path = req.query.redirect_uri || '/home';
-  var state = req.query.state || 'no state';
-
+  var path = req.app.locals.query.redirect_uri || '/home';
+  var state = req.app.locals.query.state || 'no_state';
+  console.log("post login");
+  console.log(req.app.locals.query.redirect_uri);
   console.log("redirect to : " + util.format('%s&state=%s&code=%s', path, state, code));
   return res.redirect(util.format('%s&state=%s&code=%s', path, state, code));
 });
 
 app.get('/login', function(req, res) {
-  console.log(req)
+  console.log("get login");
+  req.app.locals.query = req.query;
   return res.sendFile(path.join(__dirname + '/login.html'));
 });
 
