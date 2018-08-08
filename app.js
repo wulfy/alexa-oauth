@@ -56,6 +56,7 @@ app.post('/login', function(req, res) {
 });
 
 app.get('/login', function(req, res) {
+  console.log(req.body.redirect_uri)
   return res.sendFile(path.join(__dirname + '/login.html'));
 });
 
