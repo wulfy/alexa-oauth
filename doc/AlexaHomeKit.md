@@ -38,7 +38,7 @@ Host: api.amazon.com
 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
 
 grant_type=client_credentials&scope=messaging:push&client_id=(YOUR_CLIENT_ID)&client_secret=(YOUR_CLIENT_SECRET)
-```
+``
 
 
 Response format
