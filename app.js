@@ -13,6 +13,7 @@ var encodeTokenFor = require('./customUtils');
 var Request = oAuth2Server.Request;
 var Response = oAuth2Server.Response;
 const {ALEXA_TOKEN_FORMAT} = require('./constants')
+
 // Create an Express application.
 var app = express();
 var options = { 
