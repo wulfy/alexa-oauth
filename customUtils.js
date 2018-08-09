@@ -6,9 +6,10 @@ module.exports = function encodeTokenFor(token,format){
 	switch(format){
 		case ALEXA_TOKEN_FORMAT:
 			formatedToken = {
-				...formatedToken,
-				access_token : formatedToken.accessToken,
-				"token_type":"Bearer"
+				access_token : token.accessToken,
+				token_type:"Bearer",
+				expires_in:token.expires_in,
+				refresh_token:token.refreshToken,
 			}
 			break;
 		default:
