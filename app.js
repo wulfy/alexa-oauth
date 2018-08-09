@@ -39,6 +39,7 @@ app.post('/oauth/token', function(req,res,next){
       .then(function(token) {
         // Todo: remove unnecessary values in response
         console.log('sending token');
+        console.log(token);
         return res.json(token)
       }).catch(function(err){
         return res.status( 500).json(err)
