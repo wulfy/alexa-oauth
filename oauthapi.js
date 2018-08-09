@@ -1,8 +1,6 @@
 /**
  * Module dependencies.
  */
-require('dotenv').config()
-
 var mysql = require('mysql')
 var database = require('./database')
 const {TOKEN_EXPIRES_DELAY, DBCONFIG} = require('./constants')
@@ -176,7 +174,8 @@ module.exports.saveToken = function (token, client, user) {
         refreshTokenExpiresAt: accessTokenExpiresAt,
         scope: token.scope,
         client: {id: client.clientId},
-        user: {id: user}
+        user: {id: user},
+        expires_in:TOKEN_EXPIRES_DELAY
       }
   });
 };

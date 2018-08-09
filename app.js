@@ -9,9 +9,10 @@ var render = require('co-views')('views');
 var util = require('util');
 var authenticate = require('./authenticate')
 var path = require('path');
+var encodeTokenFor = require('./customUtils');
 var Request = oAuth2Server.Request;
 var Response = oAuth2Server.Response;
-
+const {ALEXA_TOKEN_FORMAT} = require('./constants')
 // Create an Express application.
 var app = express();
 var options = { 
@@ -40,7 +41,8 @@ app.post('/oauth/token', function(req,res,next){
         // Todo: remove unnecessary values in response
         console.log('sending token');
         console.log(token);
-        return res.json(token)
+
+        return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
         return res.status( 500).json(err)
       })
