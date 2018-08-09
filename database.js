@@ -12,6 +12,16 @@ class Database {
             } );
         } );
     }
+    connect() {
+        this.connection.connect(function(err) {
+              if (err) {
+                console.error('error connecting: ' + err.stack);
+                return;
+                  }
+         
+                console.log('connexion works , connected as id ' + this.connection.threadId);
+            }.bind(this));
+        }
     close() {
         return new Promise( ( resolve, reject ) => {
             this.connection.end( err => {
