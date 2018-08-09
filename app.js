@@ -39,8 +39,8 @@ app.post('/oauth/token', function(req,res,next){
       .token(request,response)
       .then(function(token) {
         // Todo: remove unnecessary values in response
-        console.log('sending token');
-        console.log(token);
+        console.log('-------sending token to format' + ALEXA_TOKEN_FORMAT);
+        console.log(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
 
         return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
