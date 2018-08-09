@@ -166,14 +166,14 @@ module.exports.getUser = function (username, password) {
 
 module.exports.saveToken = function (token, client, user) {
   console.log("saveAccessToken");
-  console.log(user);
+  console.log(token);
   return connectionDatabase.query('INSERT INTO oauth_tokens(access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id) VALUES (?, ?, ?, ?, ?, ?)', 
     [
     token.accessToken,
-    token.accessTokenExpiresAt,
+    null,
     client.clientId,
     token.refreshToken,
-    token.accessTokenExpiresAt,
+    null,
     user
   ]).then( results => {
       console.log("return save");
