@@ -10,6 +10,7 @@ module.exports = function encodeTokenFor(token,format){
 				token_type:"Bearer",
 				expires_in:token.expires_in,
 				refresh_token:token.refreshToken,
+				scope:"NOSCOPE"
 			}
 			break;
 		default:
