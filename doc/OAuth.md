@@ -15,3 +15,20 @@ https://developer.amazon.com/fr/docs/account-linking/configure-authorization-cod
 
 OAUTH rfc
 https://tools.ietf.org/html/rfc6749#section-1.6
+
+## ressources 
+
+
+
+SPECS node-oaut2-server (node module)
+https://github.com/oauthjs/node-oauth2-server/blob/e1f741fdad191ee47e7764b80a8403c1ea2804d4/docs/model/spec.rst
+
+
+How to build OAuth2 server with node.js
+https://blog.cloudboost.io/how-to-make-an-oauth-2-server-with-node-js-a6db02dc2ce7
+https://resources.infosecinstitute.com/securing-web-apis-part-ii-creating-an-api-authenticated-with-oauth-2-in-node-js/#gref
+https://github.com/manjeshpv/node-oauth2-server-implementation
+
+express OAuth2 module
+https://github.com/oauthjs/express-oauth-server
+

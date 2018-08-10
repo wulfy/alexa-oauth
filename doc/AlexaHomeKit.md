@@ -56,4 +56,12 @@ Content-Type: application/json
 }
 ```
 
+### Debug
+https://developer.amazon.com/fr/blogs/post/TxQN2C04S97C0J/how-to-set-up-amazon-api-gateway-as-a-proxy-to-debug-account-linking
 
+https://forums.developer.amazon.com/articles/38610/alexa-debugging-account-linking.html
+especially the "Note that the account linking URL must be a HTTPS URL on port 443, with a certificate from an Amazon approved CA authority"
+
+
+### use it in alexa Skill
+https://developer.amazon.com/fr/docs/account-linking/add-account-linking-logic-smart-home.html

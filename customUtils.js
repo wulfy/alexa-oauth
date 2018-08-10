@@ -7,11 +7,10 @@ module.exports = function encodeTokenFor(token,format){
 		case ALEXA_TOKEN_FORMAT:
 			formatedToken = {
 				access_token : token.accessToken,
-				token_type:"Bearer",
+				token_type:"bearer",
 				expires_in:token.expires_in,
-				refresh_token:token.refreshToken,
-				scope:"NOSCOPE"
-			}
+				refresh_token:token.refreshToken
+			};
 			break;
 		default:
 	}
