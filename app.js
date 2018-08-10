@@ -42,7 +42,15 @@ app.post('/oauth/token', function(req,res,next){
         // Todo: remove unnecessary values in response
         console.log('-------sending token to format' + ALEXA_TOKEN_FORMAT);
         console.log(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
-
+        res.removeHeader('Content-Length');
+        res.removeHeader('ETag');
+        res.removeHeader('Date');
+        res.removeHeader('X-Powered-By');
+        res.removeHeader('Connection');
+          res.set({
+            'Cache-Control': 'no-store',
+            'Pragma': 'no-cache'
+          });
         return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
         return res.status( 500).json(err)
