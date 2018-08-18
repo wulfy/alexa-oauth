@@ -1,12 +1,20 @@
+/***** API TO MANAGE OAUTH PROCESS
+      ONLY 2 actions are done in the app (login and oauth/token)
+      and only one action is called : oauth.token(xxxx) which will generate a token
+
+      TODO:
+      - support refresh token (today it's impossible to regenerate a token)
+      - 
+      ****/
+
+
 /**
  * Module dependencies.
  */
-var mysql = require('mysql')
-var database = require('./database')
-const {TOKEN_EXPIRES_DELAY, DBCONFIG} = require('./constants')
-console.log(DBCONFIG)
-var connectionDatabase = new database(DBCONFIG);
-connectionDatabase.connect();
+const {getDatabase} = require('./utils/database')
+const {TOKEN_EXPIRES_DELAY} = require('./utils/constants')
+
+connectionDatabase = getDatabase();
 
 function setExpireDelay(delay) {
 
@@ -44,9 +52,9 @@ module.exports.getAccessToken = function(bearerToken) {
  * Get client.
  */
 
+//Alexa presente ici son client ID et client SECRET
 module.exports.getClient = function (clientId, clientSecret) {
   console.log("get client "+ clientId + " " + clientSecret);
-
   return connectionDatabase.query('SELECT client_id, client_secret, redirect_uri FROM oauth_clients WHERE client_id = ? AND client_secret = ?', 
     [clientId, clientSecret]).then( results => {
         var oAuthClient = results[0];
@@ -66,14 +74,14 @@ module.exports.getClient = function (clientId, clientSecret) {
     );
 };
 
-
+//save authorization code in database (the code has a timeout delay before expiring)
 module.exports.saveAuthorizationCode = function (code, client, user) {
   console.log("saveAuthorizationCode");
   console.log(client);
   console.log(user);
   return connectionDatabase.query('INSERT INTO  oauth_codes(expires, redirect_uri, client_id, user_id, code, scope) VALUES (?, ?, ?, ?, ?, ?)', 
     [
-     code.expiresAt,
+     code.expiresAt || setExpireDelay(600),
      code.redirectUri,
      client.id,
      user.id,
@@ -115,6 +123,8 @@ module.exports.getAuthorizationCode = function (code) {
     );
 };
 
+
+// revoke code when used (date is set in the past to invalidate it)
 module.exports.revokeAuthorizationCode = function (code) {
   console.log("revokeAuthorizationCode " + code.code);
   return connectionDatabase.query("UPDATE oauth_codes SET expires='2018-08-08 00:00:00' WHERE code = ?", 
@@ -124,7 +134,7 @@ module.exports.revokeAuthorizationCode = function (code) {
     });
 };
 
-
+//not working for now
 module.exports.getRefreshToken = function (bearerToken) {
   console.log("getRefreshToken");
   return connectionDatabase.query('SELECT access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id FROM oauth_tokens WHERE refresh_token = ?', 
@@ -135,7 +145,7 @@ module.exports.getRefreshToken = function (bearerToken) {
 };
 
 /*
- * Get user.
+ * Get user.with encrypted pass
  */
 
 module.exports.getUser = function (username, password) {

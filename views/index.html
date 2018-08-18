@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.png">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>alhau - Alexa Home Automation</title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <style type="text/css">
+    /* Custom Stylesheet */
+    /**
+     * Use this file to override Materialize files so you can update
+     * the core Materialize files in the future
+     *
+     * Made By MaterializeCSS.com
+     */
+
+    nav ul a,
+    nav .brand-logo {
+      color: #444;
+    }
+
+    p {
+      line-height: 2rem;
+    }
+
+    .sidenav-trigger {
+      color: #26a69a;
+    }
+
+    .parallax-container {
+      min-height: 50vh;
+      line-height: 0;
+      height: auto;
+      color: rgba(255,255,255,.9);
+    }
+      .parallax-container .section {
+        width: 100%;
+      }
+
+    @media only screen and (max-width : 992px) {
+      .parallax-container .section {
+        position: absolute;
+        top: 40%;
+      }
+      #index-banner .section {
+        top: 10%;
+      }
+    }
+
+    @media only screen and (max-width : 600px) {
+      #index-banner .section {
+        top: 0;
+      }
+    }
+
+    .icon-block {
+      padding: 0 15px;
+    }
+    .icon-block .material-icons {
+      font-size: inherit;
+    }
+
+    footer.page-footer {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <nav class="white" role="navigation">
+    <div class="nav-wrapper container">
+      <a id="logo-container" href="#" class="brand-logo"><img src="/logo"></a>
+      <ul class="right hide-on-med-and-down">
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Register</a></li>
+      </ul>
+
+      <ul id="nav-mobile" class="sidenav">
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Register</a></li>
+      </ul>
+      <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    </div>
+  </nav>
+
+  <div id="index-banner" class="parallax-container">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <br><br>
+        <h1 class="header center teal-text text-lighten-2">ALHAU</h1>
+        <div class="row center">
+          <h5 class="header col s12 light">Controll your Domoticz devices by voice with AlexaHomeAUtomation</h5>
+        </div>
+        <div class="row center">
+          <a href="/register" id="download-button" class="btn-large waves-effect waves-light teal lighten-1">Get Started</a>
+        </div>
+        <br><br>
+
+      </div>
+    </div>
+    <div class="parallax"><img src="https://cnet3.cbsistatic.com/img/Lu3MOwjEIeneT8dW3ibGxrBdAZg=/1600x900/2016/04/06/f664aff4-fe65-491d-959e-0781c0a9e13f/alexa-echotable-st1777283.jpg" alt="Unsplashed background img 1"></div>
+  </div>
+
+
+  <div class="container">
+    <div class="section">
+
+      <!--   Icon Section   -->
+      <div class="row">
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center brown-text"><i class="material-icons">code</i></h2>
+            <h5 class="center">Working on it</h5>
+
+            <p class="light">All devices are not supported yet but will be in the future. This is a beta version and we are working hard to improve it and support more devices! Join our forum to ask for features or report bugs or even give us some help !</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center brown-text"><i class="material-icons">directions_run</i></h2>
+            <h5 class="center">Fast and easy to configure</h5>
+
+            <p class="light"> Register to the service, save Domoticz access and your are ready ! Just activate the Alexa skill and start playing with your devices. You can find here supported devices and command examples. You can even report bugs in our forum</p>
+          </div>
+        </div>
+
+        <div class="col s12 m4">
+          <div class="icon-block">
+            <h2 class="center brown-text"><i class="material-icons">lock</i></h2>
+            <h5 class="center">Secure</h5>
+
+            <p class="light">All password are encrypted and they are used only to communicate with your Domoticz server. Your data are not shared with any third party and your devices are only knowed by Alexa (we dont save them or their status in our side). Click here if you want to learn more.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="parallax-container valign-wrapper">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <div class="row center">
+          <h5 class="header col s12 light">Work with Domoticz, use Alexa's power to controll your devices by voice</h5>
+        </div>
+      </div>
+    </div>
+    <div class="parallax"><img src="https://i.ytimg.com/vi/7CTYqjclVxk/maxresdefault.jpg" alt="Unsplashed background img 2"></div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+
+      <div class="row">
+        <div class="col s12 center">
+          <h3><i class="mdi-content-send brown-text"></i></h3>
+          <h4>Work with Domoticz</h4>
+          <p class="left-align light">Plug Alexa to your Domoticz server with Alhau and use it's power to controll your devices by voice. Alhau identify your Alexa account and translate Alexa commands to Domoticz commands. Your credentials are encrypted and never sent between Alexa servers and Alhau server, we only use token to identify your account. Your Domoticz credentials are used only when Alhau send a command to your server.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="parallax-container valign-wrapper">
+    <div class="section no-pad-bot">
+      <div class="container">
+        <div class="row center">
+          <h5 class="header col s12 light">Don't hesitate to help us !</h5>
+        </div>
+      </div>
+    </div>
+    <div class="parallax"><img src="https://cnet3.cbsistatic.com/img/Lu3MOwjEIeneT8dW3ibGxrBdAZg=/1600x900/2016/04/06/f664aff4-fe65-491d-959e-0781c0a9e13f/alexa-echotable-st1777283.jpg" alt="Unsplashed background img 3"></div>
+  </div>
+
+  <footer class="page-footer teal">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">Company Bio</h5>
+          <p class="grey-text text-lighten-4">We are a team of happy developpers who work on tools we dream of and provide them to anyone who need to. Our main goal is to share our knowledge and do incredible things with anyone helps!</p>
+
+
+        </div>
+        <div class="col l3 s12">
+          <h5 class="white-text">Get Started</h5>
+          <ul>
+            <li><a class="white-text" href="/getStarted">Get started</a></li>
+            <li><a class="white-text" href="http://www.domoticz.com/">Domoticz</a></li>
+            <li><a class="white-text" href="/help">Help</a></li>
+            <li><a class="white-text" href="#!">Link 4</a></li>
+          </ul>
+        </div>
+        <div class="col l3 s12">
+          <h5 class="white-text">About us</h5>
+          <ul>
+            <li><a class="white-text" href="#!">Security</a></li>
+            <li><a class="white-text" href="#!">The team</a></li>
+            <li><a class="white-text" href="#!">Help us</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+      Made by <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!--  Scripts-->
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+  <script>
+    (function($){
+      $(function(){
+
+        $('.sidenav').sidenav();
+        $('.parallax').parallax();
+
+      }); // end of document ready
+    })(jQuery); // end of jQuery name space
+  </script>
+
+  </body>
+</html>

@@ -1,0 +1,37 @@
+extends login_layout.pug
+block content
+				h1 Login
+				if(error)
+					div.error_msg #{error}
+				form(method='POST' action='./login')
+							div.input-field.col.s6
+								i.material-icons.prefix.validate email
+								input#email.validate(type="email",name="email")
+								label(for="email") Email 
+								span.helper-text(data-error="Email is not well formated" data-success="Good!")
+							div.input-field.col.s6
+								i.material-icons.prefix lock
+								input#password.validate(type="password",name="password")
+								label(for="password") password 
+							input#client_id(
+								type='hidden'
+								value=client_id
+								name="client_id"
+								)
+							input#redirect_uri(
+								type='hidden'
+								value=redirect_uri
+								name="redirect_uri"
+								)
+							input#state(
+								type='hidden'
+								value=state
+								name="state"
+								)
+							div.buttons
+								button.btn.waves-effect.waves-light.green(
+									type='submit'
+									) Login
+									i.material-icons.left check
+								a.btn.waves-effect.waves-light.blue(href='/register') Register
+									i.material-icons.left mode_edit

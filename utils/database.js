@@ -1,4 +1,6 @@
 const mysql = require( 'mysql' );
+const {DBCONFIG} = require('./constants')
+let database = null;
 class Database {
     constructor( config ) {
         this.connection = mysql.createConnection( config );
@@ -8,6 +10,7 @@ class Database {
             this.connection.query( sql, args, ( err, rows ) => {
                 if ( err )
                     return reject( err );
+
                 resolve( rows );
             } );
         } );
@@ -33,4 +36,10 @@ class Database {
     }
 }
 
-module.exports = Database;
+console.log(DBCONFIG)
+exports.getDatabase = () => {
+    if(database) return database;
+    database = new Database(DBCONFIG);
+    database.connect();
+    return database;
+};
