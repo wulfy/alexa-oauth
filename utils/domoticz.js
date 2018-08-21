@@ -22,7 +22,7 @@ function promiseHttpRequest (request) {
           });
         
         }).on('socket', (s) => { 
-        	s.setTimeout(100, () => { 
+        	s.setTimeout(1000, () => { 
         		console.log("TIMEOUT")
         		s.destroy(); 
         	})
