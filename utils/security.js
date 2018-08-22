@@ -37,7 +37,6 @@ exports.encrypt = (data) => {
 	const cipher = crypto.createCipher('aes192', CRYPTOPASS);
 	let encrypted = cipher.update(toSave, 'utf8', 'hex');
 	encrypted += cipher.final('hex');
-	cipher.end();
 	return encrypted;
 }
 
