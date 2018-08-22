@@ -1,0 +1,79 @@
+.error{
+	width: 100%;
+	/*background-color: rgb(255, 204, 204);*/
+	color:rgb(255, 102, 102);
+}
+
+.success{
+	color:rgb(102, 255, 102);
+}
+
+.msg{
+	font-size: 16px;
+	display: block;
+}
+
+.blackContainer {
+	height: 100%;
+	width: 80vw;
+	background: rgb(0,0,0,0.8);
+	margin:  0 auto;
+}
+
+#mobile-demo{
+	z-index: 999;
+}
+.content {
+	width: 390px;
+	padding: 20px 50px;
+	margin:0 auto;
+}
+
+.home_logo{
+	float: left;
+}
+.parallax-container{
+	width: 30vh;
+}
+
+@media screen and (min-width: 860px) {
+	.blackContainer {
+		float: right;
+		margin: 0;
+		right: 0px;
+		top: 0px;
+		width: 40vw;
+	}
+}
+
+.btn{
+	margin-left: 10px;
+}
+
+.buttons {
+	margin-top: 40px;
+}
+
+input {
+	color: white;
+}
+
+li {
+	list-style-type: none;
+}
+
+.login{
+	background:url("https://res.cloudinary.com/jpress/image/fetch/c_fill,f_auto,h_704,q_auto:eco,w_1284/https://inews.co.uk/wp-content/uploads/2017/01/Amazon-Echo-Google-Chirp.jpg") no-repeat center center fixed;
+}
+
+.account{
+	background:url("https://cnet3.cbsistatic.com/img/Lu3MOwjEIeneT8dW3ibGxrBdAZg=/1600x900/2016/04/06/f664aff4-fe65-491d-959e-0781c0a9e13f/alexa-echotable-st1777283.jpg") no-repeat center center fixed;
+}
+body{
+	font-size: 25px;
+	-webkit-background-size: cover !important;;
+	-moz-background-size: cover !important;;
+	-o-background-size: cover !important;;
+	background-size: cover !important;
+	color:white;
+}

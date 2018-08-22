@@ -1,0 +1,19 @@
+extends default_layout.pug
+block container
+		nav.nav-extended
+			div.nav-wrapper
+				a.brand-logo(href="#") Logo
+				a.sidenav-trigger(href="#",data-target="mobile-demo")
+					i.material-icons menu
+				ul#nav-mobile.right.hide-on-med-and-down
+					li
+						a(href="sass.html") Sass
+					li
+						a(href="sass.html") Sass
+		ul#mobile-demo.sidenav(style="transform: translateX(-105%);")
+			li
+				a(href="sass.html") Sass
+			li
+				a(href="sass.html") Sass
+
+		h1 HELLO
