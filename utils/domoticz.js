@@ -2,7 +2,7 @@ const http = require('http');
 const {decrypt} = require('./security');
 
 
-const STATUS_COMMAND = "json.htm?type=command&param=getversion";
+const STATUS_COMMAND = "json.htm?type=devices&rid=0";
 
 
 // do a promise http request
