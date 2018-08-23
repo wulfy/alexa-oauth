@@ -22,7 +22,7 @@ exports.encodeTokenFor = (token,format) =>{
 	return formatedToken;
 }
 
-exports.cryptPassword = function(password) {
+function cryptPassword (password) {
    return bcrypt.hashSync(password, saltRounds);
 };
 
@@ -46,4 +46,5 @@ exports.decrypt = (encryptedData) => {
 	return JSON.parse(decrypted);
 }
 
+exports.cryptPassword = cryptPassword;
 exports.generateAuthCode = () => cryptPassword(CODE_KEY+new Date().getTime());
