@@ -4,8 +4,6 @@ const {ALEXA_TOKEN_FORMAT, DEFAULT_TOKEN_FORMAT, CRYPTOPASS, CODE_KEY} = require
 
 const saltRounds = 10;
 
-exports.generateAuthCode = () => cryptPassword(CODE_KEY+new Date().getTime());
-
 exports.encodeTokenFor = (token,format) =>{
 	let formatedToken = token;
 
@@ -47,3 +45,5 @@ exports.decrypt = (encryptedData) => {
 	decrypted += decipher.final('utf8');
 	return JSON.parse(decrypted);
 }
+
+exports.generateAuthCode = () => cryptPassword(CODE_KEY+new Date().getTime());
