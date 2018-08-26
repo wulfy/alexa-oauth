@@ -63,6 +63,7 @@ module.exports.getClient = function (clientId, clientSecret) {
         console.log("data");
         return {
           "clientId": oAuthClient.client_id,
+          "id": oAuthClient.client_id,
           "clientSecret": oAuthClient.client_secret,
           "grants": [
                     "password",
@@ -111,14 +112,16 @@ module.exports.getAuthorizationCode = function (code) {
         let result = results[0];
         console.log("user id " + result.user_id);
         console.log("code " + code);
-        return {
+        const authCode = {
           code: code,
-          client: result.client_id,
-          expiresAt: new Date(result.expires),
+          client: {id:result.client_id},
+          expiresAt: result.expires,
           redirectUri: result.redirect_uri,
-          user: result.user_id,
+          user: {id:result.user_id},
           scope: result.scope,
         };
+        console.log(authCode)
+        return authCode;
       }
     );
 };
@@ -136,11 +139,24 @@ module.exports.revokeAuthorizationCode = function (code) {
 
 //not working for now
 module.exports.getRefreshToken = function (bearerToken) {
-  console.log("getRefreshToken");
-  return connectionDatabase.query('SELECT access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id FROM oauth_tokens WHERE refresh_token = ?', 
+  console.log("getRefreshToken " + bearerToken);
+  return connectionDatabase.query('SELECT * FROM oauth_tokens INNER JOIN users on users.id = oauth_tokens.user_id INNER JOIN oauth_clients on oauth_clients.client_id = oauth_tokens.client_id WHERE refresh_token = ?', 
     [bearerToken])
     .then( results => {
-      return results.length ? results[0] : false;
+      console.log(results[0]);
+      if(results.length <1)
+          return false;
+
+      const data = results[0];
+      const returnValue ={
+          refreshToken: data.refresh_token,
+          refreshTokenExpiresAt:data.refresh_token_expires_on,
+          client: {id:data.client_id}, // with 'id' property
+          user: {id:data.user_id,email:data.email}
+        }
+
+      console.log(returnValue);
+      return returnValue;
     });
 };
 
@@ -157,6 +173,18 @@ module.exports.getUser = function (username, password) {
     });
 };
 
+// revoke code when used (date is set in the past to invalidate it)
+module.exports.revokeToken = function (token) {
+  console.log("revokeToken ");
+  console.log(token);
+  return connectionDatabase.query("UPDATE oauth_tokens SET refresh_token_expires_on='2018-08-08 00:00:00' WHERE refresh_token = ?", 
+    [token.refreshToken])
+  .then( results => {
+      return true;
+    });
+    return true;
+};
+
 /**
  * Save token.
  */
@@ -164,16 +192,18 @@ module.exports.getUser = function (username, password) {
 module.exports.saveToken = function (token, client, user) {
   console.log("saveAccessToken");
   console.log(token);
-  let accessTokenExpiresAt = token.accessTokenExpiresAt;
-  accessTokenExpiresAt = setExpireDelay(TOKEN_EXPIRES_DELAY)
+  console.log(user);
+  const accessTokenExpiresAt = token.accessTokenExpiresAt;
+  const refreshTokenExpiresAt = token.refreshTokenExpiresAt;
+
   return connectionDatabase.query('INSERT INTO oauth_tokens(access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id) VALUES (?, ?, ?, ?, ?, ?)', 
     [
     token.accessToken,
     accessTokenExpiresAt,
     client.clientId,
     token.refreshToken,
-    accessTokenExpiresAt,
-    user
+    refreshTokenExpiresAt,
+    user.id
   ]).then( results => {
       console.log("return save");
 
@@ -181,7 +211,7 @@ module.exports.saveToken = function (token, client, user) {
         accessToken: token.accessToken,
         accessTokenExpiresAt: accessTokenExpiresAt,
         refreshToken: token.refreshToken,
-        refreshTokenExpiresAt: accessTokenExpiresAt,
+        refreshTokenExpiresAt: refreshTokenExpiresAt,
         scope: token.scope,
         client: {id: client.clientId},
         user: {id: user},

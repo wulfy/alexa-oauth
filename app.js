@@ -13,7 +13,7 @@ const path = require('path');
 const authenticate = require('./authenticate')
 const {checkDomoticz} = require('./utils/domoticz')
 const {encodeTokenFor,cryptPassword,encrypt,decrypt,generateAuthCode} = require('./utils/security');
-const {ALEXA_TOKEN_FORMAT,COOKIE_SECRET} = require('./utils/constants')
+const {ALEXA_TOKEN_FORMAT,COOKIE_SECRET,TOKEN_EXPIRES_DELAY} = require('./utils/constants')
 const {saveAuthorizationCode} = require("./oauthapi")
 const {
         checkExistsEmail,
@@ -53,10 +53,10 @@ app.oauth =  new oAuth2Server({
 app.post('/oauth/token', function(req,res,next){
     var request = new Request(req);
     var response = new Response(res);
-
+    const options = {accessTokenLifetime:TOKEN_EXPIRES_DELAY};
     console.log('/oauth/token');
     app.oauth
-      .token(request,response)
+      .token(request,response,options)
       .then(function(token) {
         // Todo: remove unnecessary values in response
         console.log('-------sending token to format' + ALEXA_TOKEN_FORMAT);
@@ -72,6 +72,8 @@ app.post('/oauth/token', function(req,res,next){
           });
         return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
+        console.log("ERROR ");
+        console.log(err)
         return res.status( 500).json(err)
       })
   });
@@ -81,11 +83,16 @@ app.post('/login', async function(req, res) {
   // @TODO: Insert your own login mechanism.
   //const code = "admin";
   // Successful logins should send the user back to /oauth/authorize.
+  console.log("post login");
   const login = req.body.email;
   const password = req.body.password;
+
   const user = await getUserAccount(login,password);
   const redirect_uri = req.body.redirect_uri;
   const state = req.body.state;
+  var request = new Request(req);
+  var response = new Response(res);
+  //const options = {accessTokenLifetime:172800}
 
   if(!user){
     const error  = "Bad credentials";
@@ -96,8 +103,8 @@ app.post('/login', async function(req, res) {
   if(redirect_uri && state )
   {
       var path = redirect_uri || '/home';
-      console.log("post login");
       console.log(req.body);
+
       //generate authorization code
       const authorizationCode = generateAuthCode();
       const code = {
@@ -109,6 +116,12 @@ app.post('/login', async function(req, res) {
        const client = {id:req.body.client_id};
       saveAuthorizationCode(code, client, user);
       console.log("redirect to : " + util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
+      
+      /*return app.oauth.authorize(request, response,options).then(function(success) {
+                res.json(success)
+            }).catch(function(err){
+              res.status(err.code || 500).json(err)
+            })*/
       return res.redirect(util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
   }else{
       req.session = {uid:user.id};
@@ -173,8 +186,14 @@ app.post('/authorise', function(req, res){
   console.log('/authorise');
     var request = new Request(req);
     var response = new Response(res);
+    let authenticateHandler = {
+      handle: function(request, response) {
+        return {id:1,email:"ludo@ludo.com"}/* get authenticated user */;
+      }
+    };
+    const options = {authenticateHandler:authenticateHandler,accessTokenLifetime:172800};
 
-    return app.oauth.authorize(request, response).then(function(success) {
+    return app.oauth.authorize(request, response, options).then(function(success) {
         res.json(success)
     }).catch(function(err){
       res.status(err.code || 500).json(err)
