@@ -42,7 +42,7 @@ grant_type=client_credentials&scope=messaging:push&client_id=(YOUR_CLIENT_ID)&cl
 
 
 Response format
-After successfully receiving and interpreting your POST request message, ADM sends your server an HTTP response message that looks similar to this:
+After successfully receiving and interpreting your POST request message, ADM sends your server an HTTP response message that looks similar to this:https://developer.amazon.com/fr/docs/login-with-amazon/access-token.html
 
 ```
 X-Amzn-RequestId: d917ceac-2245-11e2-a270-0bc161cb589d

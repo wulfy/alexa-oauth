@@ -3,13 +3,15 @@ html(lang="en")
 		style
 			include default.css
 		<!-- Compiled and minified CSS -->
+		meta(name="viewport",content="width=device-width, initial-scale=1.0")
 		link(rel='stylesheet', href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css")
 		link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons' )
 		link(rel="icon",href="/favicon.png")
 	title="LOGIN"
 	body.login
 		div.home_logo
-			a(href="/")
-				img(src="/logo")
+			div.data 
+				a(href="/")
+					img(src="/logo")
 		block container
 		script(src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js')
