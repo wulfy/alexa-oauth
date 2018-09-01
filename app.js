@@ -9,6 +9,8 @@ const render = require('co-views')('views');
 const util = require('util');
 const cookieSession = require('cookie-session')
 const path = require('path');
+var compression = require('compression');
+var helmet = require('helmet');
 
 const authenticate = require('./authenticate')
 const {checkDomoticz} = require('./utils/domoticz')
@@ -34,9 +36,14 @@ const Response = oAuth2Server.Response;
 const INIT_MESSAGE = {message:{success:null,error:null}};
 const {setExpireDelay} = require('./utils/date.js')
 const {sendEmail} = require('./utils/mail.js')
+const {debugLogger, prodLogger} = require('./utils/logger.js')
 
 // Create an Express application.
 var app = express();
+
+app.use(helmet());
+app.use(compression()); //Compress all routes
+app.use(express.static(path.join(__dirname, 'views')));
 app.set('trust proxy', 1) // trust first proxy
 app.use(cookieSession({
   name: 'alexaloauth_session',
@@ -62,13 +69,13 @@ app.post('/oauth/token', function(req,res,next){
     var request = new Request(req);
     var response = new Response(res);
     const options = {accessTokenLifetime:TOKEN_EXPIRES_DELAY};
-    console.log('/oauth/token');
+    prodLoger('/oauth/token');
     app.oauth
       .token(request,response,options)
       .then(function(token) {
         // Todo: remove unnecessary values in response
-        console.log('-------sending token to format' + ALEXA_TOKEN_FORMAT);
-        console.log(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
+        debugLoger('-------sending token to format' + ALEXA_TOKEN_FORMAT);
+        debugLoger(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
         res.removeHeader('Content-Length');
         res.removeHeader('ETag');
         res.removeHeader('Date');
@@ -80,8 +87,8 @@ app.post('/oauth/token', function(req,res,next){
           });
         return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
-        console.log("ERROR ");
-        console.log(err)
+        prodLoger("ERROR ");
+        prodLogger(err)
         return res.status( 500).json(err)
       })
   });
@@ -91,7 +98,7 @@ app.post('/login', async function(req, res) {
   // @TODO: Insert your own login mechanism.
   //const code = "admin";
   // Successful logins should send the user back to /oauth/authorize.
-  console.log("post login");
+  prodLogger("post login");
   const login = req.body.email;
   const password = req.body.password;
 
@@ -104,14 +111,14 @@ app.post('/login', async function(req, res) {
 
   if(!user){
     const error  = "Bad credentials";
-    console.log("error")
+    prodLogger("error")
     return res.redirect(util.format('%s?error=%s&redirect_uri=%s&state=%s','/login',error,redirect_uri,state));
   }
 
   if(redirect_uri && state )
   {
       var path = redirect_uri || '/home';
-      console.log(req.body);
+      debugLogger(req.body);
 
       //generate authorization code
       const authorizationCode = generateAuthCode();
@@ -123,7 +130,7 @@ app.post('/login', async function(req, res) {
        };
        const client = {id:req.body.client_id};
       saveAuthorizationCode(code, client, user);
-      console.log("redirect to : " + util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
+      debugLogger("redirect to : " + util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
       
       /*return app.oauth.authorize(request, response,options).then(function(success) {
                 res.json(success)
@@ -133,7 +140,7 @@ app.post('/login', async function(req, res) {
       return res.redirect(util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
   }else{
       req.session = {uid:user.id,...INIT_MESSAGE};
-      console.log("redirecting");
+      prodLogger("redirecting");
       return res.redirect("./account");
   }
 });
@@ -145,7 +152,7 @@ app.get('/logout', function(req, res) {
   });
 
 app.get('/login', function(req, res) {
-  console.log("get login");
+  prodLogger("get login");
   const error  = req.query.error || null;
   const success  = req.query.success || null;
   if(req.session.uid)
@@ -196,7 +203,7 @@ app.get('/recoverPass', function(req, res) {
 
 app.post('/recoverPass', async function(req, res) {
   const email = req.body.userMail;
-  console.log("reset email " + email);
+  prodLogger("reset email " + email);
   const user = await getUserByMail(email);
   if(user)
   {
@@ -210,14 +217,14 @@ app.post('/recoverPass', async function(req, res) {
 });
 
 app.get('/register', function(req, res) {
-  console.log("get register");
-  console.log(req.query.error)
+  prodLogger("get register");
+  debugLogger(req.query.error)
   const error  = req.query.error || null;
   return res.render('register',{error});
 });
 
 app.post('/register', async function(req, res) {
-  console.log("post register");
+  prodLogger("post register");
   const email = req.body.email;
   const password = req.body.password;
   let error = "";
@@ -228,17 +235,17 @@ app.post('/register', async function(req, res) {
   }
   emailExists = await checkExistsEmail(email);
   if(emailExists)
-  {console.log("exists");
-    console.log(emailExists)
+  {prodLogger("exists");
+    prodLogger(emailExists)
     error = "Email already exists";
     return res.redirect(util.format('/register?error=%s', error));
   }
-  console.log("creating account")
+  prodLogger("creating account")
   try {
     await createAccount(email, password);
     const user = await getUserAccount(email,password);
-    console.log("creating data ");
-    console.log(user.id)//TODO : understand why NULL
+    prodLogger("creating data ");
+    debugLogger(user.id)//TODO : understand why NULL
     const user_data = await createData(user.id);
     //create session 
     req.session = {uid:user.id,...INIT_MESSAGE};
@@ -253,7 +260,7 @@ app.post('/register', async function(req, res) {
 
 
 app.post('/authorise', function(req, res){
-  console.log('/authorise');
+  prodLogger('/authorise');
     var request = new Request(req);
     var response = new Response(res);
     let authenticateHandler = {
@@ -279,14 +286,14 @@ function checkSession(req) {
 }
 
 function getMessage(req) {
-  console.log(req.session);
+  debugLogger(req.session);
   let data = {success:null,error:null};
   if(req.session && req.session.message)
   {
     data = req.session.message;
     req.session = {...req.session,...INIT_MESSAGE} ;
   }
-  console.log(req.session);
+  debugLogger(req.session);
   return data;
 }
 
@@ -294,14 +301,14 @@ app.get('/account', async function(req,res){
   
   const message = getMessage(req);
   if(!checkSession(req)){
-      console.log("no session")
+      prodLogger("no session")
       res.redirect(util.format("./login?error=%s","You are not connected, please connect"));
   }
   else
   {
     let success = message.success || "";
     let error = message.error || "";
-    console.log(" UID " + req.session.uid)
+    debugLogger(" UID " + req.session.uid)
     let domoticzCon = false;
     let user = await getUserData(req.session.uid)
     user.password = NOT_CHANGED_PASSWORD;
@@ -318,7 +325,7 @@ app.get('/account', async function(req,res){
 app.post('/account', async function(req,res){
   
   if(!checkSession(req)){
-      console.log("no session")
+      prodLogger("no session")
       res.redirect("./login");
   }
   else
@@ -336,7 +343,7 @@ app.post('/account', async function(req,res){
             domoticzPassword = user.domoticzPassword;
           else
             {
-              console.log("encrypt")
+              prodLogger("encrypt")
               domoticzPassword = encrypt(req.body.domoPass);
             }
 
