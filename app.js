@@ -366,13 +366,13 @@ app.get('/profile', authenticate(app.oauth,{scope:'profile'}), function(req,res)
 
 
 app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname+'/views/index.html'));
+  res.sendFile(path.join(__dirname+'/views/images/index.html'));
 })
 app.get('/logo', function (req, res) {
-  res.sendFile(path.join(__dirname+'/views/alhau_large_logo.png'));
+  res.sendFile(path.join(__dirname+'/views/images/alhau_large_logo.png'));
 })
 app.get('/favicon.png', function (req, res) {
-  res.sendFile(path.join(__dirname+'/views/alhau_icon.png'));
+  res.sendFile(path.join(__dirname+'/views/images/alhau_icon.png'));
 })
 
 
