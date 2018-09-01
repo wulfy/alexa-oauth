@@ -13,19 +13,23 @@
 }
 
 .blackContainer {
-	height: 100vh;
+	min-height: 100vh;
 	width: 80vw;
 	margin:  0 auto;
 	position: relative;
 }
 
 .black {
-		background-color: rgb(0,0,0);
+	background-color: rgb(0,0,0);
 	opacity: 0.8;
 	width: 100%;
 	height: 100%;
 	position: absolute;
 	z-index: -1;
+}
+
+.dataContainer{
+	padding: 50px 5px;
 }
 
 #mobile-demo{
@@ -83,6 +87,13 @@
 	margin-left: 7px;
 }
 
+.blue:hover{
+	background-color:  #7eb8e7 !important;
+}
+
+.green:hover{
+	background-color:  #62b767 !important;
+}
 .buttons {
 	margin-top: 40px;
 }

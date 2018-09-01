@@ -13,7 +13,7 @@ const path = require('path');
 const authenticate = require('./authenticate')
 const {checkDomoticz} = require('./utils/domoticz')
 const {encodeTokenFor,cryptPassword,encrypt,decrypt,generateAuthCode} = require('./utils/security');
-const {ALEXA_TOKEN_FORMAT,COOKIE_SECRET,TOKEN_EXPIRES_DELAY} = require('./utils/constants')
+const {ALEXA_TOKEN_FORMAT,COOKIE_SECRET,TOKEN_EXPIRES_DELAY,NOT_CHANGED_PASSWORD} = require('./utils/constants')
 const {saveAuthorizationCode} = require("./oauthapi")
 const {
         checkExistsEmail,
@@ -21,11 +21,19 @@ const {
         getUserAccount,
         getUserData,
         updateUserData,
-        createData
+        createData,
+        updateUser,
+        getPassCode,
+        saveLostPassCode,
+        getUserByMail,
+        revokeLostPasswordCode
       } = require("./utils/accountManagement")
 
 const Request = oAuth2Server.Request;
 const Response = oAuth2Server.Response;
+const INIT_MESSAGE = {message:{success:null,error:null}};
+const {setExpireDelay} = require('./utils/date.js')
+const {sendEmail} = require('./utils/mail.js')
 
 // Create an Express application.
 var app = express();
@@ -124,19 +132,81 @@ app.post('/login', async function(req, res) {
             })*/
       return res.redirect(util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
   }else{
-      req.session = {uid:user.id};
+      req.session = {uid:user.id,...INIT_MESSAGE};
       console.log("redirecting");
       return res.redirect("./account");
   }
 });
 
+
+app.get('/logout', function(req, res) {
+    req.session = null;
+    return res.redirect("./login");
+  });
+
 app.get('/login', function(req, res) {
   console.log("get login");
   const error  = req.query.error || null;
+  const success  = req.query.success || null;
   if(req.session.uid)
     return res.redirect("/account");
   else
-    return res.render('login',{error,client_id:req.query.client_id,redirect_uri:req.query.redirect_uri,state:req.query.state});
+    return res.render('login',{error,success,client_id:req.query.client_id,redirect_uri:req.query.redirect_uri,state:req.query.state});
+});
+
+
+app.post('/lostPass', async function(req, res) {
+  const code = req.body.code;
+  const newPass = req.body.userPassword;
+  const userData = await getPassCode(code);
+  let error = null;
+  let success = null;
+  if(userData)
+  {
+    await updateUser(userData.id,userData.email,newPass)
+    await revokeLostPasswordCode(code)
+    success = "Email reset";
+  }else
+  {
+    error = "Retrieve code is invalid";
+  }
+  
+  
+  return res.redirect(util.format('./login?error=%s&success=%s',error,success));
+});
+
+app.get('/lostPass', async function(req, res) {
+  const code = req.query.code;
+  const userData = await getPassCode(code);
+  let error = "";
+  let success = "";
+
+  if(typeof userData === "object")
+    return res.render('lostPass',{email:userData.email,code});
+
+  error = "Retrieve code is invalid";
+    
+  return res.redirect(util.format('./login?error=%s&success=%s',error,success));
+});
+
+app.get('/recoverPass', function(req, res) {
+    const success = req.query.success;
+    return res.render('recoverpass',{success});
+});
+
+app.post('/recoverPass', async function(req, res) {
+  const email = req.body.userMail;
+  console.log("reset email " + email);
+  const user = await getUserByMail(email);
+  if(user)
+  {
+      const code = generateAuthCode();
+      const expires = setExpireDelay(600);
+      await saveLostPassCode(user,code,expires);
+      sendEmail(user.email,code);
+  }
+
+  return res.redirect(util.format('./recoverPass?success=%s', "Email sent"));
 });
 
 app.get('/register', function(req, res) {
@@ -171,7 +241,7 @@ app.post('/register', async function(req, res) {
     console.log(user.id)//TODO : understand why NULL
     const user_data = await createData(user.id);
     //create session 
-    req.session = {uid:user.id};
+    req.session = {uid:user.id,...INIT_MESSAGE};
 
     return res.redirect("./account");
   }catch(e)
@@ -208,19 +278,33 @@ function checkSession(req) {
   return req.session.uid ;
 }
 
+function getMessage(req) {
+  console.log(req.session);
+  let data = {success:null,error:null};
+  if(req.session && req.session.message)
+  {
+    data = req.session.message;
+    req.session = {...req.session,...INIT_MESSAGE} ;
+  }
+  console.log(req.session);
+  return data;
+}
+
 app.get('/account', async function(req,res){
   
+  const message = getMessage(req);
   if(!checkSession(req)){
       console.log("no session")
       res.redirect(util.format("./login?error=%s","You are not connected, please connect"));
   }
   else
   {
-    let success = req.query.success || "";
-    let error = req.query.error || "";
+    let success = message.success || "";
+    let error = message.error || "";
     console.log(" UID " + req.session.uid)
     let domoticzCon = false;
     let user = await getUserData(req.session.uid)
+    user.password = NOT_CHANGED_PASSWORD;
     try{
       domoticzCon = await checkDomoticz(user);
       domoticzCon ? success += "- Domoticz connection is OK - ": error+="- Domoticz connection is NOK -";
@@ -245,6 +329,8 @@ app.post('/account', async function(req,res){
           const domoticzHost = req.body.domoHost;
           const domoticzPort = req.body.domoPort;
           const domoticzlogin = req.body.domoLogin;
+          const userEmail = req.body.userMail;
+          let userPassword = "";
 
           if(user.domoticzPassword === req.body.domoPass)
             domoticzPassword = user.domoticzPassword;
@@ -254,10 +340,20 @@ app.post('/account', async function(req,res){
               domoticzPassword = encrypt(req.body.domoPass);
             }
 
-          const data = await updateUserData(req.session.uid,domoticzHost,domoticzPort,domoticzlogin,domoticzPassword)
-          res.redirect(util.format("./account?success=%s","Changes saved"));
+          if(req.body.userPassword === NOT_CHANGED_PASSWORD)
+          {
+            userPassword = user.password;
+          }else{
+            userPassword = encrypt(req.body.userPassword);
+          }
+
+          await updateUserData(req.session.uid,domoticzHost,domoticzPort,domoticzlogin,domoticzPassword)
+          await updateUser(req.session.uid,userEmail,userPassword)
+          req.session.message.success ="Changes saved";
+          res.redirect("./account");
     }catch(e) {
-          res.redirect(util.format("./account?error=%",e.message));
+          req.session.message.error = "Changes saved";
+          res.redirect("./account");
       }
   }
 });

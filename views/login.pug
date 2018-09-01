@@ -1,8 +1,11 @@
 extends login_layout.pug
 block content
 				h1 Login
-				if(error)
-					div.error_msg #{error}
+				if(success)
+					span.success.msg #{success}
+					br
+				if(error) 
+					span.error.msg #{error}
 				form(method='POST' action='./login')
 							div.input-field.col.s6
 								i.material-icons.prefix.validate email
@@ -28,6 +31,7 @@ block content
 								value=state
 								name="state"
 								)
+							a(href='/recoverPass') Forgot password?
 							div.buttons
 								button.btn.waves-effect.waves-light.green(
 									type='submit'

@@ -59,7 +59,7 @@ exports.getUserData = (uid)=>{
     	if(!user) 
     		return false;
 
-    	user.password = null;//remove password from answer for security reasons
+    	//user.password = null;//remove password from answer for security reasons
     	return user;
     });
 }
@@ -79,4 +79,70 @@ exports.updateUserData = (uid,domoticzHost,domoticzPort,domoticzLogin,domoticzPa
     	return data;
     });
 }
+
+exports.updateUser = (uid,userEmail,userPassword)=>{
+
+    if(!userEmail || !userPassword)
+        throw("Email and Password are mandatory ! ");
+
+    const encryptedPassword = cryptPassword(userPassword);
+    return connectionDatabase.query(`UPDATE users SET 
+                                    email = ?,
+                                    password = ?
+                                    WHERE id = ?`, 
+    [userEmail,encryptedPassword,uid]).then( results => {
+        let data = results[0];
+        if(!data) 
+            return false;
+
+        return data;
+    });
+}
+
+exports.getPassCode = (code)=>{
+    const currentDate = new Date();
+    return connectionDatabase.query(`SELECT us.*,lp.expires  FROM users as us 
+                                     INNER JOIN lost_pass as lp on lp.user_id = us.id 
+                                     WHERE lp.code = ? AND lp.expires >= ?`, 
+    [code,currentDate]).then( results => {
+        let data = results[0];
+        if(!data) 
+            return false;
+
+        return data;
+    });
+}
+
+exports.revokeLostPasswordCode = (code) =>{
+    return connectionDatabase.query(`UPDATE lost_pass SET 
+                                    expires = '2018-08-08 00:00:00'
+                                    WHERE code = ?`, 
+    [code]).then( results => {
+        let data = results[0];
+        return data;
+    });
+}
+
+exports.saveLostPassCode = (user,code,expires)=>{
+    return connectionDatabase.query(`INSERT INTO lost_pass(user_id, email, code, expires) VALUES (?,?,?,?)`, 
+    [user.id,user.email,code,expires]).then( results => {
+        let data = results[0];
+        if(!data) 
+            return false;
+
+        return data;
+    });
+}
+
+exports.getUserByMail = (email)=>{
+    return connectionDatabase.query(`SELECT * FROM users where email = ?`, 
+    [email]).then( results => {
+        let data = results[0];
+        if(!data) 
+            return false;
+
+        return data;
+    });
+}
+
 

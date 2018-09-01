@@ -1,0 +1,32 @@
+extends default_layout.pug
+block container
+	div.blackContainer.center-align
+		div.black
+		div.dataContainer
+			b User : #{email}
+			if(success)
+				span.success.msg #{success}
+				br
+			if(error) 
+				span.error.msg #{error}
+			form(method='POST' action='./lostPass')
+				ul
+					li
+						label(for='userPassword') New password:
+						input#userMail(
+							type='password'
+							name='userPassword'
+							placeholder='your new password'
+							)
+					li
+						input#code(
+							type='hidden'
+							name='code'
+							value=code
+							)
+					li
+						br
+						button.btn.waves-effect.waves-light.green(
+								type='submit'
+								) Set new password
+								i.material-icons.left check

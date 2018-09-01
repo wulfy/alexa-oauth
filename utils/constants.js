@@ -20,3 +20,8 @@ exports.CRYPTOPASS = process.env.CRYPTOPASS;
 exports.CODE_KEY = process.env.CODE_KEY;
 exports.COOKIE_SECRET = process.env.COOKIE_SECRET;
 
+exports.NOT_CHANGED_PASSWORD = "bm90X2NoYW5nZWRfcGFzc3dvcmQ="; //base64 "not_changed_password"
+
+exports.MAILER_LOGIN = process.env.MAILER_LOGIN;
+exports.MAILER_PASSWORD = process.env.MAILER_PASSWORD;
+exports.WEBSITE = process.env.WEBSITE;
