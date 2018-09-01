@@ -43,7 +43,7 @@ var app = express();
 
 app.use(helmet());
 app.use(compression()); //Compress all routes
-app.use(express.static(path.join(__dirname, 'views')));
+//app.use(express.static(path.join(__dirname, 'views/images')));
 app.set('trust proxy', 1) // trust first proxy
 app.use(cookieSession({
   name: 'alexaloauth_session',
