@@ -272,6 +272,15 @@ app.get('/profile', authenticate(app.oauth,{scope:'profile'}), function(req,res)
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/index.html'));
 })
+app.get('/policy', function (req, res) {
+  res.sendFile(path.join(__dirname+'/views/policy.html'));
+})
+app.get('/getStarted', function (req, res) {
+  res.sendFile(path.join(__dirname+'/views/getstarted.html'));
+})
+app.get('/security', function (req, res) {
+  res.sendFile(path.join(__dirname+'/views/security.html'));
+})
 app.get('/logo', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/alhau_large_logo.png'));
 })
