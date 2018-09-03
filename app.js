@@ -359,7 +359,7 @@ app.post('/account', async function(req,res){
           req.session.message.success ="Changes saved";
           res.redirect("./account");
     }catch(e) {
-          req.session.message.error = "Changes saved";
+          req.session.message.error = "An error occured";
           res.redirect("./account");
       }
   }
