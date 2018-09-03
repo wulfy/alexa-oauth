@@ -13,18 +13,9 @@
  */
 const {getDatabase} = require('./utils/database')
 const {TOKEN_EXPIRES_DELAY} = require('./utils/constants')
+const {setExpireDelay} = require('./utils/date.js')
 
 connectionDatabase = getDatabase();
-
-function setExpireDelay(delay) {
-
-      if(delay === null) return null;
-
-     let expires = new Date();
-     expires.setSeconds(expires.getSeconds() + delay);
-    
-    return expires;
-}
 
 /*
  * Get access token.

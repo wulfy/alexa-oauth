@@ -2,49 +2,75 @@ extends default_layout.pug
 block container
 	div.blackContainer.center-align
 		div.black
-		h1 Domoticz DATA
-		span.user.msg User : #{email}
-		if (success)
-		span.success.msg #{success}
-		br
-		if (error) 
-		span.error.msg #{error}
-		form(method='POST' action='./account')
-			ul
-				li
-					label(for='domoHost') Domoticz Host:
-					input#domoHost(
-						type='text'
-						name='domoHost'
-						placeholder='http://ipOrDomain'
-						value=domoticzHost
-						)
-				li
-					label(for='domoPort') Domoticz Port:
-					input#domoPort(
-						type='number'
-						name='domoPort'
-						placeholder='8080'
-						value=domoticzPort
-						)
-				li
-					label(for='domoLogin') Domoticz Login:
-					input#domoLogin(
-						type='text'
-						name='domoLogin'
-						placeholder='yourLogin'
-						value=domoticzLogin
-						)
-				li
-					label(for='domoPass') Domoticz Password:
-					input#domoPass(
-						type='password'
-						name='domoPass'
-						value=domoticzPassword
-						)
-				li
-					br
-					button.btn.waves-effect.waves-light.green(
-							type='submit'
-							) Modifier
-							i.material-icons.left check
+		div.dataContainer
+			button.btn.waves-effect.waves-light.green(
+				type='submit'
+				) Update
+				i.material-icons.left check
+			a.btn.waves-effect.waves-light.red(href='/logout') Logout
+				i.material-icons.left exit_to_app
+			br
+			b Account Data
+			span.user.msg User : #{email}
+			form(method='POST' action='./account')
+				ul
+					li
+						label(for='userMail') Email:
+						input#userMail(
+							type='email'
+							name='userMail'
+							placeholder='youemail@domain.com'
+							value=email
+							)
+					li
+						label(for='userPassword') Password:
+						input#userPassword(
+							type='password'
+							name='userPassword'
+							placeholder='your password'
+							value=password
+							)
+					li
+						b Domoticz DATA
+					if(success)
+						span.success.msg #{success}
+						br
+					if(error) 
+						span.error.msg #{error}
+					li
+						label(for='domoHost') Domoticz Host:
+						input#domoHost(
+							type='text'
+							name='domoHost'
+							placeholder='http://ipOrDomain'
+							value=domoticzHost
+							)
+					li
+						label(for='domoPort') Domoticz Port:
+						input#domoPort(
+							type='number'
+							name='domoPort'
+							placeholder='8080'
+							value=domoticzPort
+							)
+					li
+						label(for='domoLogin') Domoticz Login:
+						input#domoLogin(
+							type='text'
+							name='domoLogin'
+							placeholder='yourLogin'
+							value=domoticzLogin
+							)
+					li
+						label(for='domoPass') Domoticz Password:
+						input#domoPass(
+							type='password'
+							name='domoPass'
+							value=domoticzPassword
+							)
+					li
+						br
+						button.btn.waves-effect.waves-light.green(
+								type='submit'
+								) Update
+								i.material-icons.left check

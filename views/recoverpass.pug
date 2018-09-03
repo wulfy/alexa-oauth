@@ -1,0 +1,29 @@
+extends default_layout.pug
+block container
+	div.blackContainer.center-align
+		div.black
+		div.dataContainer
+			b Lost password?
+			if(success)
+				span.success.msg #{success}
+				br
+			if(error) 
+				span.error.msg #{error}
+			form(method='POST' action='./recoverPass')
+				ul
+					li
+						label(for='userMail') Email:
+						input#userMail(
+							type='email'
+							name='userMail'
+							placeholder='youemail@domain.com'
+							value=email
+							)
+					li
+						br
+						button.btn.waves-effect.waves-light.green(
+								type='submit'
+								) Reset password
+								i.material-icons.left check
+						a.btn.waves-effect.waves-light.blue(href='/') Back to hp
+							i.material-icons.left home
