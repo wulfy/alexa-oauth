@@ -55,6 +55,8 @@ app.use(cookieSession({
 // Add body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'views/images')));
+
 app.set('view engine', 'pug');
 app.set('views', './views')
 
@@ -374,6 +376,15 @@ app.get('/profile', authenticate(app.oauth,{scope:'profile'}), function(req,res)
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/images/index.html'));
+})
+app.get('/policy', function (req, res) {
+  res.sendFile(path.join(__dirname+'/views/policy.html'));
+})
+app.get('/getStarted', function (req, res) {
+  res.sendFile(path.join(__dirname+'/views/getstarted.html'));
+})
+app.get('/security', function (req, res) {
+  res.sendFile(path.join(__dirname+'/views/security.html'));
 })
 app.get('/logo', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/images/alhau_large_logo.png'));
