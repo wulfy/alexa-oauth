@@ -1,5 +1,7 @@
 const mysql = require( 'mysql' );
 const {DBCONFIG} = require('./constants')
+const {databaseLogger,debugLogger} = require('./logger')
+
 let database = null;
 class Database {
     constructor( config ) {
@@ -18,11 +20,11 @@ class Database {
     connect() {
         this.connection.connect(function(err) {
               if (err) {
-                console.error('error connecting: ' + err.stack);
+                databaseLogger('error connecting: ' + err.stack);
                 return;
                   }
          
-                console.log('connexion works , connected as id ' + this.connection.threadId);
+                databaseLogger('connexion works , connected as id ' + this.connection.threadId);
             }.bind(this));
         }
     close() {
@@ -36,7 +38,7 @@ class Database {
     }
 }
 
-console.log(DBCONFIG)
+debugLogger(DBCONFIG)
 exports.getDatabase = () => {
     if(database) return database;
     database = new Database(DBCONFIG);

@@ -14,7 +14,7 @@
 const {getDatabase} = require('./utils/database')
 const {TOKEN_EXPIRES_DELAY} = require('./utils/constants')
 const {setExpireDelay} = require('./utils/date.js')
-
+const {oauthLogger, debugLogger} = require('./utils/logger.js')
 connectionDatabase = getDatabase();
 
 /*
@@ -22,13 +22,13 @@ connectionDatabase = getDatabase();
  */
 
 module.exports.getAccessToken = function(bearerToken) {
-  console.log("access token");
+  debugLogger("access token");
   return connectionDatabase.query('SELECT access_token, access_token_expires_on, client_id, refresh_token, refresh_token_expires_on, user_id FROM oauth_tokens WHERE access_token = ?', 
     [bearerToken])
     .then(results => {
 
       var token = results[0];
-      console.log(token);
+      debugLogger(token);
       if(!token) return false;
       return {
         accessToken: token.access_token,
@@ -45,13 +45,13 @@ module.exports.getAccessToken = function(bearerToken) {
 
 //Alexa presente ici son client ID et client SECRET
 module.exports.getClient = function (clientId, clientSecret) {
-  console.log("get client "+ clientId + " " + clientSecret);
+  debugLogger("get client "+ clientId + " " + clientSecret);
   return connectionDatabase.query('SELECT client_id, client_secret, redirect_uri FROM oauth_clients WHERE client_id = ? AND client_secret = ?', 
     [clientId, clientSecret]).then( results => {
         var oAuthClient = results[0];
-        console.log("return client");
+        debugLogger("return client");
         if(!oAuthClient) return false;
-        console.log("data");
+        debugLogger("data");
         return {
           "clientId": oAuthClient.client_id,
           "id": oAuthClient.client_id,
@@ -68,9 +68,9 @@ module.exports.getClient = function (clientId, clientSecret) {
 
 //save authorization code in database (the code has a timeout delay before expiring)
 module.exports.saveAuthorizationCode = function (code, client, user) {
-  console.log("saveAuthorizationCode");
-  console.log(client);
-  console.log(user);
+  oauthLogger("saveAuthorizationCode");
+  oauthLogger(client);
+  oauthLogger(user);
   return connectionDatabase.query('INSERT INTO  oauth_codes(expires, redirect_uri, client_id, user_id, code, scope) VALUES (?, ?, ?, ?, ?, ?)', 
     [
      code.expiresAt || setExpireDelay(600),
@@ -95,14 +95,14 @@ module.exports.saveAuthorizationCode = function (code, client, user) {
  */
 
 module.exports.getAuthorizationCode = function (code) {
-  console.log("getAuthorizationCode");
+  oauthLogger("getAuthorizationCode");
 
   return connectionDatabase.query('SELECT expires, redirect_uri, client_id, user_id, scope FROM oauth_codes WHERE code = ?', 
     [code]).then( results => {
         if(!results.length) return false;
         let result = results[0];
-        console.log("user id " + result.user_id);
-        console.log("code " + code);
+        oauthLogger("user id " + result.user_id);
+        oauthLogger("code " + code);
         const authCode = {
           code: code,
           client: {id:result.client_id},
@@ -111,7 +111,7 @@ module.exports.getAuthorizationCode = function (code) {
           user: {id:result.user_id},
           scope: result.scope,
         };
-        console.log(authCode)
+        oauthLogger(authCode)
         return authCode;
       }
     );
@@ -120,7 +120,7 @@ module.exports.getAuthorizationCode = function (code) {
 
 // revoke code when used (date is set in the past to invalidate it)
 module.exports.revokeAuthorizationCode = function (code) {
-  console.log("revokeAuthorizationCode " + code.code);
+  oauthLogger("revokeAuthorizationCode " + code.code);
   return connectionDatabase.query("UPDATE oauth_codes SET expires='2018-08-08 00:00:00' WHERE code = ?", 
     [code.code])
   .then( results => {
@@ -130,11 +130,11 @@ module.exports.revokeAuthorizationCode = function (code) {
 
 //not working for now
 module.exports.getRefreshToken = function (bearerToken) {
-  console.log("getRefreshToken " + bearerToken);
+  oauthLogger("getRefreshToken " + bearerToken);
   return connectionDatabase.query('SELECT * FROM oauth_tokens INNER JOIN users on users.id = oauth_tokens.user_id INNER JOIN oauth_clients on oauth_clients.client_id = oauth_tokens.client_id WHERE refresh_token = ?', 
     [bearerToken])
     .then( results => {
-      console.log(results[0]);
+      oauthLogger(results[0]);
       if(results.length <1)
           return false;
 
@@ -146,7 +146,7 @@ module.exports.getRefreshToken = function (bearerToken) {
           user: {id:data.user_id,email:data.email}
         }
 
-      console.log(returnValue);
+      oauthLogger(returnValue);
       return returnValue;
     });
 };
@@ -156,7 +156,7 @@ module.exports.getRefreshToken = function (bearerToken) {
  */
 
 module.exports.getUser = function (username, password) {
-  console.log("getUser");
+  oauthLogger("getUser");
   return connectionDatabase.query('SELECT id FROM users WHERE username = ? AND password = ?', 
     [username, password])
     .then(results => {
@@ -166,8 +166,8 @@ module.exports.getUser = function (username, password) {
 
 // revoke code when used (date is set in the past to invalidate it)
 module.exports.revokeToken = function (token) {
-  console.log("revokeToken ");
-  console.log(token);
+  oauthLogger("revokeToken ");
+  oauthLogger(token);
   return connectionDatabase.query("UPDATE oauth_tokens SET refresh_token_expires_on='2018-08-08 00:00:00' WHERE refresh_token = ?", 
     [token.refreshToken])
   .then( results => {
@@ -181,9 +181,9 @@ module.exports.revokeToken = function (token) {
  */
 
 module.exports.saveToken = function (token, client, user) {
-  console.log("saveAccessToken");
-  console.log(token);
-  console.log(user);
+  oauthLogger("saveAccessToken");
+  oauthLogger(token);
+  oauthLogger(user);
   const accessTokenExpiresAt = token.accessTokenExpiresAt;
   const refreshTokenExpiresAt = token.refreshTokenExpiresAt;
 
@@ -196,7 +196,7 @@ module.exports.saveToken = function (token, client, user) {
     refreshTokenExpiresAt,
     user.id
   ]).then( results => {
-      console.log("return save");
+      oauthLogger("return save");
 
       return {
         accessToken: token.accessToken,

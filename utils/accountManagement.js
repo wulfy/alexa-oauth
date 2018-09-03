@@ -1,5 +1,6 @@
 const {getDatabase} = require('./database')
 var {cryptPassword,comparePassword} = require('./security');
+const {debugLogger,databaseLogger} = require('./logger');
 
 connectionDatabase = getDatabase();
 
@@ -10,7 +11,7 @@ exports.createAccount = (email,password)=>{
      email,
      cryptPassword(password),
      ]).then( result => {
-     	console.log(result.insertId);
+     	debugLogger(result.insertId);
      	return result;
      });
 }
@@ -23,22 +24,22 @@ exports.createData = (uid)=>{
 }
 
 exports.checkExistsEmail = (email)=>{
-	console.log("search for" + email)
+	databaseLogger("search for" + email)
 	return connectionDatabase.query('SELECT email FROM users WHERE email = ?', 
     [email]).then( results => {
-    	console.log(results[0])
+    	databaseLogger(results[0])
         return results[0];
     });
 }
 
 exports.getUserAccount = (email,plainPassword)=>{
-	console.log("search for" + email + plainPassword)
+	debugLogger("search for" + email + plainPassword)
 	const password = cryptPassword(plainPassword);
 	return connectionDatabase.query(`SELECT * FROM users 
 									 WHERE email = ? `, 
     [email]).then( results => {
-    	console.log("found user: ");
-    	console.log(results[0])
+    	databaseLogger("found user: ");
+    	debugLogger(results[0])
     	let user = results[0];
     	if(!user || !comparePassword(plainPassword,user.password)) 
     		return false;
@@ -53,8 +54,8 @@ exports.getUserData = (uid)=>{
 									 LEFT JOIN user_data as ud ON us.id = ud.user_id 
 									 WHERE us.id = ? `, 
     [uid]).then( results => {
-    	console.log("found user data: ");
-    	console.log(results[0])
+    	databaseLogger("found user data: ");
+    	debugLogger(results[0])
     	let user = results[0];
     	if(!user) 
     		return false;
