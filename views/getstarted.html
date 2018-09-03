@@ -68,6 +68,28 @@
     footer.page-footer {
       margin: 0;
     }
+
+
+    .screenshot {
+      max-height: 400px;
+      max-width: 300px;
+      display: block;
+      margin: 30px;
+    }
+
+    li {
+      margin-bottom: 50px;
+    }
+
+    .container {
+      width: 50vw;
+      margin:; auto 10px;
+    }
+
+    .important {
+      font-size: 2em;
+      color: red;
+    }
   </style>
 </head>
 <body>
@@ -91,18 +113,31 @@
 
   <div class="container">
     <div class="section">
-      <ul>
-        <li> Register on this site (click on register)</li>
-        <li> Configure your Domoticz access (IP,port,login, pass) <br/>
+      <h1> GET STARTED </h1>
+      <ol>
+        <li> <b><a target="_blank" href="/register">Register</a> on this site (click on register)</b>
+            <img class="screenshot" src="/register.png"/>
+        </li>
+        <li> <b>Configure your Domoticz access (IP,port,login, pass)</b> <br/>
              Alhau will encrypt your data and safely store them. <br/>
              The Alexa skill will use them to send command to your domoticz devices <br/>
-             Only Alhau and Alexa skill have the "key" to decrypt your data. Thos data are never send to any thord party. Your data are decrypt and send only to your domoticz server.
+             Only Alhau and Alexa skill have the "key" to decrypt your data. Thos data are never send to any thord party. Your data are decrypt and send only to your domoticz server.<br/>
+             For security reason, please use a "user" lvl account in domoticz (not your admin account) and give him access only on desired components.
+             <img class="screenshot" src="/domoticz.png"/>
+             If your connection credentials are ok, Alhau will tell you with a green success message:
+             <img class="screenshot" src="/domoticz_ok.png"/>
         </li>
-        <li> Get Alexa skill in your Alexa app </li>
-        <li> Launch the skill and login with Alhau </li>
-         <li> Start discovery and your devices should appear. At this time you can control them by voice (set position, light, switch on/off) </li>
-      </ul>
-     You can ask for help in our <a href="http://alhau.free-bb.fr" target="_blank">Forum </a>
+        <li> <b>Get Alexa skill in your Alexa app</b> 
+             <img class="screenshot" src="/skill.jpeg"/>
+        </li>
+        <li> <b>Launch the skill and login with Alhau</b> 
+             <img class="screenshot" src="/login.png"/>
+        </li>
+         <li> <b>Start discovery and your devices should appear. At this time you can control them by voice (set position, light, switch on/off) </b>
+              <img class="screenshot" src="/play.jpeg"/>
+         </li>
+      </ol>
+     <span class="important">You can ask for help in our <a href="http://alhau.free-bb.fr" target="_blank">Forum </a></span>
     </div>
   </div>
 
@@ -128,8 +163,8 @@
         <div class="col l3 s12">
           <h5 class="white-text">About us</h5>
           <ul>
-            <li><a class="white-text" href="/security">Security</a></li>
-            <li><a class="white-text" href="/team">The team</a></li>
+            <li><a class="white-text" href="/policy">Policy</a></li>
+            <li><a class="white-text" href="#">The team</a></li>
             <li><a class="white-text" href="#!">Help us</a></li>
           </ul>
         </div>

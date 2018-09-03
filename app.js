@@ -40,6 +40,8 @@ app.use(cookieSession({
 // Add body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'views/images')));
+
 app.set('view engine', 'pug');
 app.set('views', './views')
 
