@@ -55,7 +55,7 @@ app.use(cookieSession({
 // Add body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'views/images')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.set('view engine', 'pug');
 app.set('views', './views')
@@ -168,8 +168,8 @@ app.post('/lostPass', async function(req, res) {
   const code = req.body.code;
   const newPass = req.body.userPassword;
   const userData = await getPassCode(code);
-  let error = null;
-  let success = null;
+  let error = "";
+  let success = "";
   if(userData)
   {
     await updateUser(userData.id,userData.email,newPass)
@@ -375,7 +375,7 @@ app.get('/profile', authenticate(app.oauth,{scope:'profile'}), function(req,res)
 
 
 app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname+'/views/images/index.html'));
+  res.sendFile(path.join(__dirname+'/views/index.html'));
 })
 app.get('/policy', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/policy.html'));
@@ -387,10 +387,10 @@ app.get('/security', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/security.html'));
 })
 app.get('/logo', function (req, res) {
-  res.sendFile(path.join(__dirname+'/views/images/alhau_large_logo.png'));
+  res.sendFile(path.join(__dirname+'/public/images/alhau_large_logo.png'));
 })
 app.get('/favicon.png', function (req, res) {
-  res.sendFile(path.join(__dirname+'/views/images/alhau_icon.png'));
+  res.sendFile(path.join(__dirname+'/public/images/alhau_icon.png'));
 })
 
 

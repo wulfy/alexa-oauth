@@ -1,4 +1,6 @@
 const nodemailer = require('nodemailer');
+const path = require('path');
+
 const {MAILER_LOGIN, MAILER_PASSWORD, WEBSITE} = require('./constants')
 
 let transporter = nodemailer.createTransport({
@@ -33,7 +35,7 @@ exports.sendEmail = (email,code) => {
 	mailOptions.to = to;
 	mailOptions.attachments= [{   // file on disk as an attachment
             filename: 'alhau_logo.png',
-            path: './views/alhau_large_logo.png', // stream this file
+            path: path.join(__dirname,'../public/images/alhau_large_logo.png'), // stream this file
             cid:'alhaulogo'
         }]
 	transporter.sendMail(mailOptions, function(error, info){
