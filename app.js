@@ -353,6 +353,7 @@ app.post('/account', async function(req,res){
           {
             userPassword = user.password;
           }else{
+            prodLogger("encrypt user pass")
             userPassword = encrypt(req.body.userPassword);
           }
 

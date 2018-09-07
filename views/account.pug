@@ -3,6 +3,7 @@ block container
 	div.blackContainer.center-align
 		div.black
 		div.dataContainer
+			form(method='POST' action='./account')
 			button.btn.waves-effect.waves-light.green(
 				type='submit'
 				) Update
@@ -12,7 +13,6 @@ block container
 			br
 			b Account Data
 			span.user.msg User : #{email}
-			form(method='POST' action='./account')
 				ul
 					li
 						label(for='userMail') Email:
