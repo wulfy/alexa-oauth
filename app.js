@@ -354,7 +354,7 @@ app.post('/account', async function(req,res){
             userPassword = user.password;
           }else{
             prodLogger("encrypt user pass")
-            userPassword = cryptPassword(req.body.userPassword);
+            userPassword = req.body.userPassword;
           }
 
           await updateUserData(req.session.uid,domoticzHost,domoticzPort,domoticzlogin,domoticzPassword)
