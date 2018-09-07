@@ -76,8 +76,8 @@ app.post('/oauth/token', function(req,res,next){
       .token(request,response,options)
       .then(function(token) {
         // Todo: remove unnecessary values in response
-        debugLoger('-------sending token to format' + ALEXA_TOKEN_FORMAT);
-        debugLoger(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
+        debugLogger('-------sending token to format' + ALEXA_TOKEN_FORMAT);
+        debugLogger(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
         res.removeHeader('Content-Length');
         res.removeHeader('ETag');
         res.removeHeader('Date');
