@@ -71,7 +71,7 @@ app.post('/oauth/token', function(req,res,next){
     var request = new Request(req);
     var response = new Response(res);
     const options = {accessTokenLifetime:TOKEN_EXPIRES_DELAY};
-    prodLoger('/oauth/token');
+    prodLogger('/oauth/token');
     app.oauth
       .token(request,response,options)
       .then(function(token) {
@@ -89,7 +89,7 @@ app.post('/oauth/token', function(req,res,next){
           });
         return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
-        prodLoger("ERROR ");
+        prodLogger("ERROR ");
         prodLogger(err)
         return res.status( 500).json(err)
       })
