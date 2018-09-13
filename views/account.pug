@@ -38,11 +38,11 @@ block container
 						if(error) 
 							span.error.msg #{error}
 						li
-							label(for='domoHost') Domoticz Host:
+							label(for='domoHost') Domoticz Host (without HTTP://):
 							input#domoHost(
 								type='text'
 								name='domoHost'
-								placeholder='http://ipOrDomain'
+								placeholder='ipOrDomain'
 								value=domoticzHost
 								)
 						li
