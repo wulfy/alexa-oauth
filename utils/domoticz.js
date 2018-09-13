@@ -1,14 +1,34 @@
 const http = require('http');
+const https = require('https');
 const {decrypt} = require('./security');
 
 
 const STATUS_COMMAND = "json.htm?type=devices&rid=0";
 
 
+function extractDomoticzUrlData (request) {
+  let domoticzUrlData = {domain:null,proto:"http"};
+  const result = request.split("//").map((value)=>value.split(":")[0]);
+
+  if(result.length > 1)
+  {
+      domoticzUrlData.proto = result[0];
+      domoticzUrlData.domain = result[1];
+  }else{
+      domoticzUrlData.domain = result[0];
+  }
+
+  return domoticzUrlData;
+}
+
+
 // do a promise http request
 function promiseHttpRequest (request) {
+    const requestLower = request.toLowerCase();
+    const httpOrHttps = requestLower.includes("https") ? https : http;
+
     return new Promise ((resolve, reject) => {
-        http.get(request, (resp) => {
+        httpOrHttps.get(request, (resp) => {
           let data = '';
           // A chunk of data has been recieved.
           resp.on('data', (chunk) => {
@@ -36,12 +56,12 @@ function promiseHttpRequest (request) {
 
 exports.checkDomoticz = async (userData)=>{
 	console.log("check");
-	const domoticzHost = userData.domoticzHost;
+	const { domain,proto } = extractDomoticzUrlData(userData.domoticzHost);
 	const domoticzPort = userData.domoticzPort;
 	const domoticzLogin = userData.domoticzLogin;
 	console.log("decrypt");
 	const domoticzPassword = decrypt(userData.domoticzPassword);
-	const query = `http://${domoticzLogin}:${domoticzPassword}@${domoticzHost}:${domoticzPort}/${STATUS_COMMAND}`;
+	const query = `${proto}://${domoticzLogin}:${domoticzPassword}@${domain}:${domoticzPort}/${STATUS_COMMAND}`;
 	console.log("query");
 	console.log(query);
 	const domoticzVersion = await promiseHttpRequest(query);

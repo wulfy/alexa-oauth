@@ -339,7 +339,7 @@ app.post('/account', async function(req,res){
           const domoticzPort = req.body.domoPort;
           const domoticzlogin = req.body.domoLogin;
           const userEmail = req.body.userMail;
-          let userPassword = "";
+          let userPassword = null;
 
           if(user.domoticzPassword === req.body.domoPass)
             domoticzPassword = user.domoticzPassword;
@@ -349,20 +349,24 @@ app.post('/account', async function(req,res){
               domoticzPassword = encrypt(req.body.domoPass);
             }
 
-          if(req.body.userPassword === NOT_CHANGED_PASSWORD)
+          if(req.body.userPassword != NOT_CHANGED_PASSWORD)
           {
-            userPassword = user.password;
-          }else{
             prodLogger("encrypt user pass")
             userPassword = req.body.userPassword;
           }
 
           await updateUserData(req.session.uid,domoticzHost,domoticzPort,domoticzlogin,domoticzPassword)
-          await updateUser(req.session.uid,userEmail,userPassword)
+
+          if(userEmail != user.email || userPassword)
+          {
+            await updateUser(req.session.uid,userEmail,userPassword)
+          }
+          
           req.session.message.success ="Changes saved";
           res.redirect("./account");
     }catch(e) {
           req.session.message.error = "An error occured";
+          prodLogger(e);
           res.redirect("./account");
       }
   }
