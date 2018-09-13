@@ -82,22 +82,37 @@ exports.updateUserData = (uid,domoticzHost,domoticzPort,domoticzLogin,domoticzPa
 }
 
 exports.updateUser = (uid,userEmail,userPassword)=>{
+    debugLogger("update user");
+    if(!userEmail)
+        throw("Email is mandatory ! ");
 
-    if(!userEmail || !userPassword)
-        throw("Email and Password are mandatory ! ");
+    if(userPassword)
+    {
+        const encryptedPassword = cryptPassword(userPassword);
+        return connectionDatabase.query(`UPDATE users SET 
+                                        email = ?,
+                                        password = ?
+                                        WHERE id = ?`, 
+        [userEmail,encryptedPassword,uid]).then( results => {
+            let data = results[0];
+            if(!data) 
+                return false;
 
-    const encryptedPassword = cryptPassword(userPassword);
-    return connectionDatabase.query(`UPDATE users SET 
-                                    email = ?,
-                                    password = ?
-                                    WHERE id = ?`, 
-    [userEmail,encryptedPassword,uid]).then( results => {
-        let data = results[0];
-        if(!data) 
-            return false;
+            return data;
+        });
+    } else {
+        return connectionDatabase.query(`UPDATE users SET 
+                                        email = ?
+                                        WHERE id = ?`, 
+        [userEmail,uid]).then( results => {
+            let data = results[0];
+            if(!data) 
+                return false;
 
-        return data;
-    });
+            return data;
+        });
+    }
+    
 }
 
 exports.getPassCode = (code)=>{

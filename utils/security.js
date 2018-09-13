@@ -39,7 +39,6 @@ exports.encrypt = (data) => {
 }
 
 exports.decrypt = (encryptedData) => {
-	console.log(encryptedData);
 	const decipher = crypto.createDecipher('aes192', CRYPTOPASS);
 	let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
 	decrypted += decipher.final('utf8');
