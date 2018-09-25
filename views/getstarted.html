@@ -129,6 +129,8 @@
             <img class="screenshot" src="/images/register.png"/>
         </li>
         <li> <b>Configure your Domoticz access (IP,port,login, pass)</b> <br/>
+             You must use a "public" IP so Alhau can access your server <br/>
+             You can retrieve your public IP <a href="http://www.mon-ip.com/">here</a> (when you are in the same network than your server)<br/>
              Alhau will encrypt your data and safely store them. <br/>
              The Alexa skill will use them to send command to your domoticz devices <br/>
              Only Alhau and Alexa skill have the "key" to decrypt your data. Thos data are never send to any thord party. Your data are decrypt and send only to your domoticz server.<br/>
@@ -136,6 +138,7 @@
              <img class="screenshot" src="/images/domoticz.png"/>
              If your connection credentials are ok, Alhau will tell you with a green success message:
              <img class="screenshot" src="/images/domoticz_ok.png"/>
+             If your connection is not good please check your IP (public IP) and your credentials. For example 192.168.x.x is not a public IP (it's a private local IP, which could not be accessed from outside).
         </li>
         <li> <b>Get Alexa skill in your Alexa app</b> 
              <img class="screenshot" src="/images/skill.jpeg"/>
