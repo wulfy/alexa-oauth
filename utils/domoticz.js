@@ -2,9 +2,8 @@ const http = require('http');
 const https = require('https');
 const {decrypt} = require('./security');
 
-
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //self signed ssl certificate
 const STATUS_COMMAND = "json.htm?type=devices&rid=0";
-
 
 function extractDomoticzUrlData (request) {
   let domoticzUrlData = {domain:null,proto:"http"};
