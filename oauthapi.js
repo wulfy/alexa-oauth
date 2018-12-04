@@ -1,10 +1,6 @@
 /***** API TO MANAGE OAUTH PROCESS
       ONLY 2 actions are done in the app (login and oauth/token)
       and only one action is called : oauth.token(xxxx) which will generate a token
-
-      TODO:
-      - support refresh token (today it's impossible to regenerate a token)
-      - 
       ****/
 
 
