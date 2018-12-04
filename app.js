@@ -191,7 +191,7 @@ app.get('/lostPass', async function(req, res) {
   let success = "";
 
   if(typeof userData === "object")
-    return res.render('lostPass',{email:userData.email,code});
+    return res.render('lostpass',{email:userData.email,code});
 
   error = "Retrieve code is invalid";
     
