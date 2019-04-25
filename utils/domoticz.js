@@ -1,6 +1,7 @@
 const http = require('http');
 const https = require('https');
 const {decrypt} = require('./security');
+const {debugLogger} = require('./logger')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //self signed ssl certificate
 const STATUS_COMMAND = "json.htm?type=devices&rid=0";
@@ -22,12 +23,12 @@ function extractDomoticzUrlData (request) {
 
 
 // do a promise http request
-function promiseHttpRequest (request,options) {
-    const requestLower = request.toLowerCase();
-    const httpOrHttps = requestLower.includes("https") ? https : http;
+function promiseHttpRequest (options) {
+    const protoLower = options.proto.toLowerCase();
+    const httpOrHttps = protoLower.includes("https") ? https : http;
 
     return new Promise ((resolve, reject) => {
-        httpOrHttps.get(request, options, (resp) => {
+        httpOrHttps.get(options, (resp) => {
           let data = '';
           // A chunk of data has been recieved.
           resp.on('data', (chunk) => {
@@ -46,7 +47,7 @@ function promiseHttpRequest (request,options) {
         		s.destroy(); 
         	})
     	}).on("error", (err) => {
-	          console.log("Error: " + err.message);
+	          debugLogger("Error: " + err.message);
 	          reject(err);
 	        })
     })
@@ -60,17 +61,21 @@ exports.checkDomoticz = async (userData)=>{
 	const domoticzLogin = userData.domoticzLogin;
 	console.log("decrypt");
 	const domoticzPassword = decrypt(userData.domoticzPassword);
-	const query = `${proto}://${domain}:${domoticzPort}/${STATUS_COMMAND}`;
   const basicAuth = 'Basic ' + Buffer.from(`${domoticzLogin}:${domoticzPassword}`).toString('base64');
   const options = {
+    proto:proto,
+    hostname: domain,
+    port: domoticzPort,
+    path: '/'+STATUS_COMMAND,
+    method: 'GET',
     headers: {
       'Authorization': basicAuth,
     }
   };
 
 	console.log("query");
-	console.log(query);
-	const domoticzVersion = await promiseHttpRequest(query,options);
+	console.log(options);
+	const domoticzVersion = await promiseHttpRequest(options);
 	const domoticzVersionObj = JSON.parse(domoticzVersion);
 	console.log(domoticzVersionObj);
 	return domoticzVersionObj.status;
