@@ -22,12 +22,12 @@ function extractDomoticzUrlData (request) {
 
 
 // do a promise http request
-function promiseHttpRequest (request) {
+function promiseHttpRequest (request,options) {
     const requestLower = request.toLowerCase();
     const httpOrHttps = requestLower.includes("https") ? https : http;
 
     return new Promise ((resolve, reject) => {
-        httpOrHttps.get(request, (resp) => {
+        httpOrHttps.get(request, options, (resp) => {
           let data = '';
           // A chunk of data has been recieved.
           resp.on('data', (chunk) => {
@@ -60,10 +60,17 @@ exports.checkDomoticz = async (userData)=>{
 	const domoticzLogin = userData.domoticzLogin;
 	console.log("decrypt");
 	const domoticzPassword = decrypt(userData.domoticzPassword);
-	const query = `${proto}://${domoticzLogin}:${domoticzPassword}@${domain}:${domoticzPort}/${STATUS_COMMAND}`;
+	const query = `${proto}://${domain}:${domoticzPort}/${STATUS_COMMAND}`;
+  const basicAuth = 'Basic ' + Buffer.from(`${domoticzLogin}:${domoticzPassword}`).toString('base64');
+  const options = {
+    headers: {
+      'Authorization': basicAuth,
+    }
+  };
+
 	console.log("query");
 	console.log(query);
-	const domoticzVersion = await promiseHttpRequest(query);
+	const domoticzVersion = await promiseHttpRequest(query,options);
 	const domoticzVersionObj = JSON.parse(domoticzVersion);
 	console.log(domoticzVersionObj);
 	return domoticzVersionObj.status;
