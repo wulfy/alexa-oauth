@@ -37,7 +37,7 @@ function promiseHttpRequest (options) {
         
           // The whole response has been received. Print out the result.
           resp.on('end', () => {
-            console.log("END PROMISE");
+            debugLogger("END PROMISE");
             resolve(data);
           });
         
@@ -73,8 +73,8 @@ exports.checkDomoticz = async (userData)=>{
     }
   };
 
-	console.log("query");
-	console.log(options);
+	debugLogger("query");
+	debugLogger(options);
 	const domoticzVersion = await promiseHttpRequest(options);
 	const domoticzVersionObj = JSON.parse(domoticzVersion);
 	console.log(domoticzVersionObj);
