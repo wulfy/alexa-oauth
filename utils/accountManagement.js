@@ -46,6 +46,8 @@ exports.getUserAccount = (email,plainPassword)=>{
 
     	user.password = null;//remove password from answer for security reasons
     	return user;
+    }).catch(e =>{
+        console.log(e);
     });
 }
 
