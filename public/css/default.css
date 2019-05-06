@@ -107,7 +107,7 @@ li {
 }
 
 .login{
-	background:url("https://res.cloudinary.com/jpress/image/fetch/c_fill,f_auto,h_704,q_auto:eco,w_1284/https://inews.co.uk/wp-content/uploads/2017/01/Amazon-Echo-Google-Chirp.jpg") no-repeat center center fixed;
+	background:url("/images/alexa_dot.png") no-repeat center center fixed;
 }
 
 .title {
@@ -116,7 +116,7 @@ li {
 }
 
 .account{
-	background:url("https://cnet3.cbsistatic.com/img/Lu3MOwjEIeneT8dW3ibGxrBdAZg=/1600x900/2016/04/06/f664aff4-fe65-491d-959e-0781c0a9e13f/alexa-echotable-st1777283.jpg") no-repeat center center fixed;
+	background:url("images/alexa_dot.png") no-repeat center center fixed;
 }
 body{
 	font-size: 25px;
