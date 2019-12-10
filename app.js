@@ -385,6 +385,9 @@ app.get('/', function (req, res) {
 app.get('/policy', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/policy.html'));
 })
+app.get('/security.txt', function (req, res) {
+  res.sendFile(path.join(__dirname+'/views/security.txt'));
+})
 app.get('/getStarted', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/getstarted.html'));
 })
