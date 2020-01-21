@@ -19,7 +19,7 @@ block container
 							input#userMail(
 								type='email'
 								name='userMail'
-								placeholder='youemail@domain.com'
+								placeholder='your_email@domain.com'
 								value=email
 								)
 						li
@@ -38,7 +38,13 @@ block container
 						if(error) 
 							span.error.msg #{error}
 						li
-							label(for='domoHost') Domoticz Host (public IP whoch can be accessed from outside):
+							label(for='domoHost') 
+								span.fullLine Domoticz Host (public IP which can be accessed from outside)
+								span.fullLine.warning WARNING : Your server must Authorize foreign connexions from Amazon Ireland Cloud.
+								span.fullLine
+									i If you are using HTTPS connection, you must write "HTTPS:\\" before your IP or Domain.
+								span.fullLine
+									i (example: https:\\my.domain.com)
 							input#domoHost(
 								type='text'
 								name='domoHost'

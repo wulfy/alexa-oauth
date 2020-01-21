@@ -19,6 +19,18 @@
 	position: relative;
 }
 
+.warning {
+	color:orange;
+}
+
+.whitef {
+	color:white;
+}
+
+.fullLine {
+	display: block;
+}
+
 .black {
 	background-color: rgb(0,0,0);
 	opacity: 0.8;
