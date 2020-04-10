@@ -2,6 +2,7 @@
  * Module dependencies.
  */
 
+const {getDatabase} = require('./utils/database')
 const bodyParser = require('body-parser');
 const express = require('express');
 const oAuth2Server = require('oauth2-server');
@@ -400,6 +401,12 @@ app.get('/logo', function (req, res) {
 app.get('/favicon.png', function (req, res) {
   res.sendFile(path.join(__dirname+'/public/images/alhau_icon.png'));
 })
+app.get('/service/database/check', function (req, res) {
+  const db = getDatabase();
+  console.log(db);
+  res.render('database_check',{check:db.check()});
+})
+
 
 
 module.exports = app;
