@@ -4,15 +4,16 @@ const path = require('path');
 const {MAILER_LOGIN, MAILER_PASSWORD, WEBSITE} = require('./constants')
 
 let transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: MAILER_LOGIN,
-    pass: MAILER_PASSWORD
-  }
+  host: 'smtp.sendgrid.net',
+   port: 587,
+   auth: {
+       user: "apikey",
+       pass: process.env.SENDGRID_API_KEY
+   }
 });
 
 let mailOptions = {
-  from: 'contact@alhau.com',
+  from: 'contact.alhau@gmail.com',
   subject: 'Lost Password'
 };
 
