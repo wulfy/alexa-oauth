@@ -6,7 +6,7 @@ const {debugLogger} = require('./logger')
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //self signed ssl certificate
 const STATUS_COMMAND = "json.htm?type=devices&rid=0";
 const STATUS_COMMAND_20232 = "json.htm?type=devices&rid=0";
-const VERSION = "json.htm?type=command&param=getversion";
+const VERSION_COMMAND = "json.htm?type=command&param=getversion";
 
 function extractDomoticzUrlData (request) {
   let domoticzUrlData = {domain:null,proto:"http"};
@@ -67,7 +67,7 @@ exports.checkDomoticz = async (userData)=>{
     proto:proto,
     hostname: domain,
     port: domoticzPort,
-    path: '/'+VERSION,
+    path: '/'+VERSION_COMMAND,
     method: 'GET',
     headers: {
       'Authorization': basicAuth,
