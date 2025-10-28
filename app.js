@@ -97,54 +97,60 @@ app.post('/oauth/token', function(req,res,next){
 
 // Post login.
 app.post('/login', async function(req, res) {
-  // @TODO: Insert your own login mechanism.
-  //const code = "admin";
-  // Successful logins should send the user back to /oauth/authorize.
-  prodLogger("post login");
+  prodLogger("POST /login");
+
   const login = req.body.email;
   const password = req.body.password;
 
-  const user = await getUserAccount(login,password);
-  const redirect_uri = req.body.redirect_uri;
-  const state = req.body.state;
-  var request = new Request(req);
-  var response = new Response(res);
-  //const options = {accessTokenLifetime:172800}
+  // récupération des paramètres peu importe GET ou POST
+  const redirect_uri = req.body.redirect_uri || req.query.redirect_uri;
+  const state = req.body.state || req.query.state;
+  const client_id = req.body.client_id || req.query.client_id;
 
-  if(!user){
-    const error  = "Bad credentials";
-    prodLogger("error")
-    return res.redirect(util.format('%s?error=%s&redirect_uri=%s&state=%s','/login',error,redirect_uri,state));
+  const user = await getUserAccount(login, password);
+
+  if (!user) {
+    const error = "Bad credentials";
+    prodLogger("error - bad credentials");
+
+    // même traitement dans les deux cas
+    if (redirect_uri && state) {
+      // cas OAuth : renvoyer l’erreur à Alexa
+      return res.redirect(
+        `${redirect_uri}?error=${encodeURIComponent(error)}&state=${encodeURIComponent(state)}`
+      );
+    } else {
+      // cas login site
+      return res.redirect(`/login?error=${encodeURIComponent(error)}`);
+    }
   }
 
-  if(redirect_uri && state )
-  {
-      var path = redirect_uri || '/home';
-      debugLogger(req.body);
+  // --- CAS 1 : OAUTH (Alexa) ---
+  if (redirect_uri && state) {
+    prodLogger("OAuth login detected");
 
-      //generate authorization code
-      const authorizationCode = generateAuthCode();
-      const code = {
-        expiresAt:null,
-        redirectUri:null,
-        authorizationCode:authorizationCode,
-        scope:"ALL"
-       };
-       const client = {id:req.body.client_id};
-      saveAuthorizationCode(code, client, user);
-      debugLogger("redirect to : " + util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
-      
-      /*return app.oauth.authorize(request, response,options).then(function(success) {
-                res.json(success)
-            }).catch(function(err){
-              res.status(err.code || 500).json(err)
-            })*/
-      return res.redirect(util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
-  }else{
-      req.session = {uid:user.id,...INIT_MESSAGE};
-      prodLogger("redirecting");
-      return res.redirect("./account");
+    const authorizationCode = generateAuthCode();
+    const code = {
+      authorizationCode,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      redirectUri: redirect_uri,
+      scope: "ALL"
+    };
+
+    const client = { id: client_id };
+    await saveAuthorizationCode(code, client, user);
+
+    prodLogger(`Redirecting to OAuth redirect_uri: ${redirect_uri}`);
+
+    return res.redirect(
+      `${redirect_uri}?state=${encodeURIComponent(state)}&code=${encodeURIComponent(authorizationCode)}`
+    );
   }
+
+  // --- CAS 2 : LOGIN NORMAL ---
+  prodLogger("Normal user login");
+  req.session = { uid: user.id, ...INIT_MESSAGE };
+  return res.redirect("./account");
 });
 
 
