@@ -25,6 +25,6 @@ jobs:
           ssh deploy@${{ secrets.SSH_HOST }} "
             set -e
             cd /home/wulfy/dev/node/alexa-oauth
-            git pull origin main
+            git pull origin master
             sudo systemctl restart myapp.service
           "
