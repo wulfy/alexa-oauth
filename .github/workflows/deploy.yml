@@ -26,5 +26,5 @@ jobs:
             set -e
             cd /home/wulfy/dev/node/alexa-oauth
             git pull origin master
-            sudo systemctl restart myapp.service
+            sudo systemctl restart alexa-oauth.service
           "
