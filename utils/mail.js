@@ -4,11 +4,11 @@ const path = require('path');
 const {MAILER_LOGIN, MAILER_PASSWORD, WEBSITE} = require('./constants')
 
 let transporter = nodemailer.createTransport({
-  host: 'smtp.sendgrid.net',
+  host: process.env.MAIL_HOST,
    port: 587,
    auth: {
-       user: "apikey",
-       pass: process.env.SENDGRID_API_KEY
+       user: process.env.MAIL_LOGIN,
+       pass: process.env.MAIL_PWD
    }
 });
 
