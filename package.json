@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Wulfy",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node --check app.js index.js oauthapi.js authenticate.js utils/accountManagement.js utils/constants.js utils/database.js utils/date.js utils/domoticz.js utils/mail.js utils/security.js utils/logger.js"
+  },
   "dependencies": {
     "aws-serverless-express": "^3.2.0",
     "bcrypt": "^5.0.0",
