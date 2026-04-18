@@ -249,13 +249,15 @@ app.post('/register', async function(req, res) {
     prodLogger("creating data ");
     debugLogger(user.id)//TODO : understand why NULL
     const user_data = await createData(user.id);
-    //create session 
+    //create session
     req.session = {uid:user.id,...INIT_MESSAGE};
 
     return res.redirect("./account");
   }catch(e)
   {
-    throw e;
+    prodLogger(e);
+    error = "An error occurred during registration";
+    return res.redirect(util.format('/register?error=%s', error));
   }
   
 });
