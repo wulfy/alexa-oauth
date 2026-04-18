@@ -1,14 +1,14 @@
 const nodemailer = require('nodemailer');
 const path = require('path');
 
-const {MAILER_LOGIN, MAILER_PASSWORD, WEBSITE} = require('./constants')
+const {WEBSITE} = require('./constants')
 
 let transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
    port: 587,
    auth: {
        user: process.env.MAIL_LOGIN,
-       pass: process.env.MAIL_PWD
+       pass: process.env.MAIL_PASSWORD
    }
 });
 
