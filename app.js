@@ -381,6 +381,40 @@ app.get('/profile', authenticate(app.oauth,{scope:'profile'}), function(req,res)
 });
 
 
+let healthCache = null;
+let healthCacheAt = 0;
+const HEALTH_CACHE_TTL = 10000;
+
+app.get('/health', async function (req, res) {
+  const now = Date.now();
+  if (healthCache && (now - healthCacheAt) < HEALTH_CACHE_TTL) {
+    return res.status(healthCache.status).json(healthCache.body);
+  }
+
+  const mem = process.memoryUsage();
+  let dbOk = false;
+  try {
+    const {getDatabase} = require('./utils/database');
+    await getDatabase().query('SELECT 1');
+    dbOk = true;
+  } catch (e) {
+    prodLogger('health db check failed: ' + e.message);
+  }
+
+  const body = {
+    status: dbOk ? 'ok' : 'degraded',
+    uptime: Math.floor(process.uptime()),
+    memory_mb: Math.round(mem.rss / 1024 / 1024),
+    db: dbOk ? 'ok' : 'error',
+  };
+  const status = dbOk ? 200 : 503;
+
+  healthCache = {status, body};
+  healthCacheAt = now;
+
+  return res.status(status).json(body);
+});
+
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname+'/views/index.html'));
 })
