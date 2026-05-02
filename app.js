@@ -319,10 +319,13 @@ app.get('/account', async function(req,res){
     try{
       domoticzCon = await checkDomoticz(user);
       domoticzCon ? success += "- Domoticz connection is OK - ": error+="- Domoticz connection is NOK -";
+      console.log("non error");
     }catch(e){
       error+=" Domoticz connection is NOK "
       debugLogger(" error ");
       debugLogger(e);
+      console.log("error");
+      console.log(e);
     }
     res.render('account',{...user,success,error});
   }
