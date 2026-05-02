@@ -71,13 +71,16 @@ app.post('/oauth/token', function(req,res,next){
     var request = new Request(req);
     var response = new Response(res);
     const options = {accessTokenLifetime:TOKEN_EXPIRES_DELAY};
-    prodLogger('/oauth/token');
+    prodLogger('/oauth/token body: ' + JSON.stringify({
+      grant_type: req.body.grant_type,
+      client_id: req.body.client_id,
+      code: req.body.code,
+      redirect_uri: req.body.redirect_uri,
+    }));
     app.oauth
       .token(request,response,options)
       .then(function(token) {
-        // Todo: remove unnecessary values in response
-        debugLogger('-------sending token to format' + ALEXA_TOKEN_FORMAT);
-        debugLogger(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
+        prodLogger('/oauth/token SUCCESS');
         res.removeHeader('Content-Length');
         res.removeHeader('ETag');
         res.removeHeader('Date');
@@ -89,9 +92,13 @@ app.post('/oauth/token', function(req,res,next){
           });
         return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
-        prodLogger("ERROR ");
-        prodLogger(err)
-        return res.status( 500).json(err)
+        prodLogger('/oauth/token ERROR: ' + JSON.stringify({
+          name: err.name,
+          message: err.message,
+          code: err.code,
+          status: err.status || err.code,
+        }));
+        return res.status(err.code || 500).json(err)
       })
   });
 
@@ -125,20 +132,14 @@ app.post('/login', async function(req, res) {
       //generate authorization code
       const authorizationCode = generateAuthCode();
       const code = {
-        expiresAt:null,
-        redirectUri:null,
-        authorizationCode:authorizationCode,
-        scope:"ALL"
+        expiresAt: setExpireDelay(600),
+        redirectUri: redirect_uri,
+        authorizationCode: authorizationCode,
+        scope: "ALL"
        };
        const client = {id:req.body.client_id};
-      saveAuthorizationCode(code, client, user);
+      await saveAuthorizationCode(code, client, user);
       debugLogger("redirect to : " + util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
-      
-      /*return app.oauth.authorize(request, response,options).then(function(success) {
-                res.json(success)
-            }).catch(function(err){
-              res.status(err.code || 500).json(err)
-            })*/
       return res.redirect(util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
   }else{
       req.session = {uid:user.id,...INIT_MESSAGE};
@@ -319,8 +320,13 @@ app.get('/account', async function(req,res){
     try{
       domoticzCon = await checkDomoticz(user);
       domoticzCon ? success += "- Domoticz connection is OK - ": error+="- Domoticz connection is NOK -";
+      console.log("non error");
     }catch(e){
       error+=" Domoticz connection is NOK "
+      debugLogger(" error ");
+      debugLogger(e);
+      console.log("error");
+      console.log(e);
     }
     res.render('account',{...user,success,error});
   }
