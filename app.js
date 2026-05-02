@@ -321,6 +321,7 @@ app.get('/account', async function(req,res){
       domoticzCon ? success += "- Domoticz connection is OK - ": error+="- Domoticz connection is NOK -";
     }catch(e){
       error+=" Domoticz connection is NOK "
+      console.log(e);
     }
     res.render('account',{...user,success,error});
   }
