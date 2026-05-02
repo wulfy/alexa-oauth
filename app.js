@@ -71,13 +71,16 @@ app.post('/oauth/token', function(req,res,next){
     var request = new Request(req);
     var response = new Response(res);
     const options = {accessTokenLifetime:TOKEN_EXPIRES_DELAY};
-    prodLogger('/oauth/token');
+    prodLogger('/oauth/token body: ' + JSON.stringify({
+      grant_type: req.body.grant_type,
+      client_id: req.body.client_id,
+      code: req.body.code,
+      redirect_uri: req.body.redirect_uri,
+    }));
     app.oauth
       .token(request,response,options)
       .then(function(token) {
-        // Todo: remove unnecessary values in response
-        debugLogger('-------sending token to format' + ALEXA_TOKEN_FORMAT);
-        debugLogger(encodeTokenFor(token,ALEXA_TOKEN_FORMAT));
+        prodLogger('/oauth/token SUCCESS');
         res.removeHeader('Content-Length');
         res.removeHeader('ETag');
         res.removeHeader('Date');
@@ -89,9 +92,13 @@ app.post('/oauth/token', function(req,res,next){
           });
         return res.json(encodeTokenFor(token,ALEXA_TOKEN_FORMAT))
       }).catch(function(err){
-        prodLogger("ERROR ");
-        prodLogger(err)
-        return res.status( 500).json(err)
+        prodLogger('/oauth/token ERROR: ' + JSON.stringify({
+          name: err.name,
+          message: err.message,
+          code: err.code,
+          status: err.status || err.code,
+        }));
+        return res.status(err.code || 500).json(err)
       })
   });
 
