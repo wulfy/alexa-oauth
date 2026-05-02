@@ -125,21 +125,15 @@ app.post('/login', async function(req, res) {
       //generate authorization code
       const authorizationCode = generateAuthCode();
       const code = {
-        expiresAt:null,
-        redirectUri:null,
-        authorizationCode:authorizationCode,
-        scope:"ALL"
+        expiresAt: setExpireDelay(600),
+        redirectUri: redirect_uri,
+        authorizationCode: authorizationCode,
+        scope: "ALL"
        };
        const client = {id:req.body.client_id};
-      saveAuthorizationCode(code, client, user);
+      await saveAuthorizationCode(code, client, user);
       debugLogger("redirect to : " + util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
-      
-      /*return app.oauth.authorize(request, response,options).then(function(success) {
-                res.json(success)
-            }).catch(function(err){
-              res.status(err.code || 500).json(err)
-            })*/
-      return res.redirect(util.format('%s?state=%s&code=%s', path, state, code.authorizationCode));
+      return res.redirect(util.format('%s?state=%s&code=%s', path, encodeURIComponent(state), code.authorizationCode));
   }else{
       req.session = {uid:user.id,...INIT_MESSAGE};
       prodLogger("redirecting");

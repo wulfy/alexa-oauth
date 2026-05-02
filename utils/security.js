@@ -67,4 +67,4 @@ exports.decrypt = (encryptedData) => {
 }
 
 exports.cryptPassword = cryptPassword;
-exports.generateAuthCode = () => cryptPassword(CODE_KEY+new Date().getTime());
+exports.generateAuthCode = () => crypto.randomBytes(32).toString('hex');
