@@ -12,6 +12,7 @@ exports.PRIVATEKEY = process.env.PRIVATEKEY;
 exports.PUBLICKEY = process.env.PUBLICKEY;
 
 exports.TOKEN_EXPIRES_DELAY = 86400;
+exports.REFRESH_TOKEN_EXPIRES_DELAY = 60 * 60 * 24 * 365;
 
 exports.ALEXA_TOKEN_FORMAT = "alexa";
 exports.DEFAULT_TOKEN_FORMAT = "default";
