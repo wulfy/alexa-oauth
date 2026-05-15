@@ -15,7 +15,7 @@ var helmet = require('helmet');
 const authenticate = require('./authenticate')
 const {checkDomoticz} = require('./utils/domoticz')
 const {encodeTokenFor,cryptPassword,encrypt,decrypt,generateAuthCode} = require('./utils/security');
-const {ALEXA_TOKEN_FORMAT,COOKIE_SECRET,TOKEN_EXPIRES_DELAY,NOT_CHANGED_PASSWORD} = require('./utils/constants')
+const {ALEXA_TOKEN_FORMAT,COOKIE_SECRET,TOKEN_EXPIRES_DELAY,REFRESH_TOKEN_EXPIRES_DELAY,NOT_CHANGED_PASSWORD} = require('./utils/constants')
 const {saveAuthorizationCode} = require("./oauthapi")
 const {
         checkExistsEmail,
@@ -70,7 +70,7 @@ app.oauth =  new oAuth2Server({
 app.post('/oauth/token', function(req,res,next){
     var request = new Request(req);
     var response = new Response(res);
-    const options = {accessTokenLifetime:TOKEN_EXPIRES_DELAY};
+    const options = {accessTokenLifetime:TOKEN_EXPIRES_DELAY, refreshTokenLifetime:REFRESH_TOKEN_EXPIRES_DELAY};
     prodLogger('/oauth/token');
     app.oauth
       .token(request,response,options)
