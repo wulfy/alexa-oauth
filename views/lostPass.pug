@@ -12,6 +12,7 @@ block container
 			if(error) 
 				span.error.msg #{error}
 			form(method='POST' action='./lostPass')
+				input(type='hidden' name='_csrf' value=csrfToken)
 				ul
 					li
 						label(for='userPassword') New password:

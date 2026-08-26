@@ -4,6 +4,7 @@ block container
 		div.black
 		div.dataContainer
 			form(method='POST' action='./account')
+				input(type='hidden' name='_csrf' value=csrfToken)
 				button.btn.waves-effect.waves-light.green(
 					type='submit'
 					) Update

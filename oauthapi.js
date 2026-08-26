@@ -34,7 +34,7 @@ module.exports.getAccessToken = function(bearerToken) {
         accessToken: token.access_token,
         client: {id: token.client_id},
         accessTokenExpiresAt: token.access_token_expires_on,
-        user: {id: token.userId}, // could be any object
+        user: {id: token.user_id}, // bind the token to its owning user (column is user_id)
       };
     });
 };
@@ -62,6 +62,18 @@ module.exports.getClient = function (clientId, clientSecret) {
                     "refresh_token"
                 ] // the list of OAuth2 grant types that should be allowed
         };
+      }
+    );
+};
+
+// Return the registered redirect_uri(s) for a client, by client_id alone (no secret).
+// Used to validate the redirect_uri supplied at login before emitting an authorization code.
+module.exports.getClientRedirectUris = function (clientId) {
+  return connectionDatabase.query('SELECT redirect_uri FROM oauth_clients WHERE client_id = ?',
+    [clientId]).then( results => {
+        if(!results.length) return [];
+        const raw = results[0].redirect_uri || '';
+        return raw.split(/[\s,]+/).filter(Boolean);
       }
     );
 };

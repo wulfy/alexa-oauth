@@ -7,6 +7,7 @@ block content
 				if(error) 
 					span.error.msg #{error}
 				form(method='POST' action='./login')
+							input(type='hidden' name='_csrf' value=csrfToken)
 							div.input-field.col.s6
 								i.material-icons.prefix.validate email
 								input#email.validate(type="email",name="email")
