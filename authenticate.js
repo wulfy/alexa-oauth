@@ -24,8 +24,8 @@ module.exports = function(oauth,options){
         next()
       })
       .catch(function (err) {
-        // Request is not authorized.
-        res.status(err.code || 500).json(err)
+        // Request is not authorized. Return a generic message, not the raw error object.
+        res.status(err.code || 401).json({error: err.name || 'unauthorized'})
       });
   }
 }

@@ -3,7 +3,12 @@ const https = require('https');
 const {decrypt} = require('./security');
 const {debugLogger} = require('./logger')
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //self signed ssl certificate
+// Many home Domoticz servers use a self-signed certificate. We tolerate it ONLY on the outgoing
+// request to the user's Domoticz server, via a dedicated agent — instead of the previous global
+// `process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"` which disabled certificate validation for the
+// entire process (including mail and any other outbound TLS). Plain-HTTP servers are unaffected.
+const selfSignedHttpsAgent = new https.Agent({rejectUnauthorized: false});
+
 const STATUS_COMMAND = "json.htm?type=devices&rid=0";
 const STATUS_COMMAND_20232 = "json.htm?type=devices&rid=0";
 const VERSION_COMMAND = "json.htm?type=command&param=getversion";
@@ -63,6 +68,7 @@ exports.checkDomoticz = async (userData)=>{
 	console.log("decrypt");
 	const domoticzPassword = decrypt(userData.domoticzPassword);
   const basicAuth = 'Basic ' + Buffer.from(`${domoticzLogin}:${domoticzPassword}`).toString('base64');
+  const isHttps = (proto || 'http').toLowerCase().includes('https');
   const options = {
     proto:proto,
     hostname: domain,
@@ -71,7 +77,9 @@ exports.checkDomoticz = async (userData)=>{
     method: 'GET',
     headers: {
       'Authorization': basicAuth,
-    }
+    },
+    // Tolerate self-signed certs for this Domoticz call only; harmless for plain HTTP.
+    agent: isHttps ? selfSignedHttpsAgent : undefined,
   };
 
 	debugLogger("query");

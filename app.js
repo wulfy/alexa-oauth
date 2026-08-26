@@ -9,14 +9,15 @@ const render = require('co-views')('views');
 const util = require('util');
 const cookieSession = require('cookie-session')
 const path = require('path');
+const crypto = require('crypto');
 var compression = require('compression');
 var helmet = require('helmet');
 
 const authenticate = require('./authenticate')
 const {checkDomoticz} = require('./utils/domoticz')
-const {encodeTokenFor,cryptPassword,encrypt,decrypt,generateAuthCode} = require('./utils/security');
+const {encodeTokenFor,cryptPassword,encrypt,decrypt,generateAuthCode,isLegacyCiphertext} = require('./utils/security');
 const {ALEXA_TOKEN_FORMAT,COOKIE_SECRET,TOKEN_EXPIRES_DELAY,NOT_CHANGED_PASSWORD} = require('./utils/constants')
-const {saveAuthorizationCode} = require("./oauthapi")
+const {saveAuthorizationCode,getClientRedirectUris} = require("./oauthapi")
 const {
         checkExistsEmail,
         createAccount,
@@ -49,13 +50,38 @@ app.use(cookieSession({
   name: 'alexaloauth_session',
   secret: COOKIE_SECRET,
   // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production' // require HTTPS in production (behind trusted proxy)
 }))
 
 // Add body parser
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// CSRF protection (synchronizer token) for browser-driven, state-changing requests.
+// A per-session token is exposed to templates as `csrfToken` and must be echoed back in the
+// `_csrf` form field (or `x-csrf-token` header). Safe methods and the server-to-server
+// /oauth/token endpoint (called by Amazon, not a browser) are exempt.
+const CSRF_EXEMPT_PATHS = ['/oauth/token'];
+app.use(function(req, res, next){
+  if(!req.session) req.session = {};
+  if(!req.session.csrfToken)
+    req.session.csrfToken = crypto.randomBytes(24).toString('hex');
+  res.locals.csrfToken = req.session.csrfToken;
+
+  const safeMethod = req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS';
+  if(safeMethod || CSRF_EXEMPT_PATHS.indexOf(req.path) !== -1)
+    return next();
+
+  const provided = (req.body && req.body._csrf) || req.get('x-csrf-token');
+  if(!provided || provided !== req.session.csrfToken)
+    return res.status(403).send('Invalid CSRF token');
+
+  next();
+});
 
 app.set('view engine', 'pug');
 app.set('views', './views')
@@ -91,7 +117,7 @@ app.post('/oauth/token', function(req,res,next){
       }).catch(function(err){
         prodLogger("ERROR ");
         prodLogger(err)
-        return res.status( 500).json(err)
+        return res.status(err.code || 500).json({error: err.name || 'server_error'})
       })
   });
 
@@ -119,6 +145,16 @@ app.post('/login', async function(req, res) {
 
   if(redirect_uri && state )
   {
+      // Validate redirect_uri against the client's registered URIs BEFORE emitting a code,
+      // otherwise the authorization code could be sent to an attacker-controlled URL
+      // (RFC 6749 §3.1.2 / authorization code interception).
+      const registeredUris = await getClientRedirectUris(req.body.client_id);
+      if(!registeredUris.length || !registeredUris.some(u => sameOrigin(u, redirect_uri))){
+        prodLogger("rejected redirect_uri: " + redirect_uri);
+        const error = "Invalid redirect_uri";
+        return res.redirect(util.format('%s?error=%s','/login',encodeURIComponent(error)));
+      }
+
       var path = redirect_uri || '/home';
       debugLogger(req.body);
 
@@ -263,27 +299,22 @@ app.post('/register', async function(req, res) {
 });
 
 
-app.post('/authorise', function(req, res){
-  prodLogger('/authorise');
-    var request = new Request(req);
-    var response = new Response(res);
-    let authenticateHandler = {
-      handle: function(request, response) {
-        return {id:1,email:"ludo@ludo.com"}/* get authenticated user */;
-      }
-    };
-    const options = {authenticateHandler:authenticateHandler,accessTokenLifetime:172800};
-
-    return app.oauth.authorize(request, response, options).then(function(success) {
-        res.json(success)
-    }).catch(function(err){
-      res.status(err.code || 500).json(err)
-    })
-  });
-
 app.get('/secure', authenticate(app.oauth), function(req,res){
   res.json({message: 'Secure data'})
 });
+
+// Two URLs share an origin when scheme + host (+ port) match. Used to validate redirect_uri:
+// tolerant of path/query differences (avoids breaking the real Alexa flow) but blocks
+// redirection to a different host.
+function sameOrigin(a, b) {
+  try {
+    const ua = new URL(a);
+    const ub = new URL(b);
+    return ua.protocol === ub.protocol && ua.host === ub.host;
+  } catch (e) {
+    return false;
+  }
+}
 
 function checkSession(req) {
   return req.session.uid ;
@@ -315,13 +346,27 @@ app.get('/account', async function(req,res){
     debugLogger(" UID " + req.session.uid)
     let domoticzCon = false;
     let user = await getUserData(req.session.uid)
-    user.password = NOT_CHANGED_PASSWORD;
+
+    // Transparently upgrade a legacy-encrypted Domoticz password to the current format on read.
+    if(isLegacyCiphertext(user.domoticzPassword)){
+      try{
+        const upgraded = encrypt(decrypt(user.domoticzPassword));
+        await updateUserData(req.session.uid, user.domoticzHost, user.domoticzPort, user.domoticzLogin, upgraded);
+        user.domoticzPassword = upgraded;
+      }catch(e){
+        prodLogger("domoticz password migration failed: " + e.message);
+      }
+    }
+
     try{
       domoticzCon = await checkDomoticz(user);
       domoticzCon ? success += "- Domoticz connection is OK - ": error+="- Domoticz connection is NOK -";
     }catch(e){
       error+=" Domoticz connection is NOK "
     }
+    // Never expose stored credentials (or their ciphertext) to the browser.
+    user.password = NOT_CHANGED_PASSWORD;
+    user.domoticzPassword = NOT_CHANGED_PASSWORD;
     res.render('account',{...user,success,error});
   }
 });
@@ -343,8 +388,8 @@ app.post('/account', async function(req,res){
           const userEmail = req.body.userMail;
           let userPassword = null;
 
-          if(user.domoticzPassword === req.body.domoPass)
-            domoticzPassword = user.domoticzPassword;
+          if(!req.body.domoPass || req.body.domoPass === NOT_CHANGED_PASSWORD)
+            domoticzPassword = user.domoticzPassword; // unchanged: keep the stored value
           else
             {
               prodLogger("encrypt")
