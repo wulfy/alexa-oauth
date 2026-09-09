@@ -45,7 +45,7 @@ function promiseHttpRequest (options) {
         
         }).on('socket', (s) => { 
         	s.setTimeout(1000, () => { 
-        		console.log("TIMEOUT")
+        		debugLogger("TIMEOUT")
         		s.destroy(); 
         	})
     	}).on("error", (err) => {
@@ -56,11 +56,11 @@ function promiseHttpRequest (options) {
 }
 
 exports.checkDomoticz = async (userData)=>{
-	console.log("check");
+	debugLogger("check");
 	const { domain,proto } = extractDomoticzUrlData(userData.domoticzHost);
 	const domoticzPort = userData.domoticzPort;
 	const domoticzLogin = userData.domoticzLogin;
-	console.log("decrypt");
+	debugLogger("decrypt");
 	const domoticzPassword = decrypt(userData.domoticzPassword);
   const basicAuth = 'Basic ' + Buffer.from(`${domoticzLogin}:${domoticzPassword}`).toString('base64');
   const options = {
@@ -78,6 +78,6 @@ exports.checkDomoticz = async (userData)=>{
 	debugLogger(options);
 	const domoticzVersion = await promiseHttpRequest(options);
 	const domoticzVersionObj = JSON.parse(domoticzVersion);
-	console.log(domoticzVersionObj);
+	debugLogger(domoticzVersionObj);
 	return domoticzVersionObj.status;
 }
