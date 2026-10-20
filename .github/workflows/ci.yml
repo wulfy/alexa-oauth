@@ -7,6 +7,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: local-test-only
+          MARIADB_DATABASE: alexa_oauth_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -22,3 +36,8 @@ jobs:
 
       - name: Check syntax
         run: yarn test
+
+      - name: Test database recovery
+        run: yarn test:integration
+        env:
+          MYSQL_TEST_PORT: '3306'

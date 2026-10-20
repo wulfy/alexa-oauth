@@ -9,6 +9,45 @@ This project is used with another project under development which plan to manage
 ## Run project
 `node index.js` to launch the server
 
+## Database recovery
+
+The database helper uses a lazy MySQL connection pool. If MariaDB is unavailable
+at startup or a connection is lost, a later query can acquire a new connection.
+Failed queries are returned to the caller and are not automatically replayed,
+since an interrupted write may already have committed.
+
+The `/health` endpoint checks the database using the same pool. It returns 503
+during a database outage and can return 200 again after recovery without an
+application restart. Its existing cache can delay that change by up to 10 seconds.
+The pool allows five connections and queues up to 50 requests. Transactions or
+other session-specific SQL must use one explicitly acquired connection throughout.
+
+### Integration tests
+
+Use a disposable MariaDB, never a production database: these tests deliberately
+terminate their own SQL connections. CI runs them against MariaDB 11.8.
+
+```sh
+docker run -d --name alexa-oauth-test-db \
+  -e MARIADB_ROOT_PASSWORD=local-test-only \
+  -e MARIADB_DATABASE=alexa_oauth_test \
+  -p 127.0.0.1:13306:3306 \
+  --health-cmd='healthcheck.sh --connect --innodb_initialized' \
+  --health-interval=2s --health-retries=30 mariadb:11.8
+
+# Wait until this reports healthy, then run the tests.
+docker inspect --format '{{.State.Health.Status}}' alexa-oauth-test-db
+yarn install --frozen-lockfile
+MYSQL_TEST_PORT=13306 yarn test:integration
+
+# Remove the disposable database and its anonymous volume when finished.
+docker rm -fv alexa-oauth-test-db
+```
+
+Optional test settings are `MYSQL_TEST_HOST`, `MYSQL_TEST_USER`,
+`MYSQL_TEST_PASSWORD`, and `MYSQL_TEST_DATABASE`. Production `MYSQL_ADDON_*`
+settings are not used by the tests.
+
 ## Debug
 The server use "debug" module to display debug depending on desired category
 
